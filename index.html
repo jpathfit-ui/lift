@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Lift</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Lift">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -14,7 +15,7 @@
 :root{--bg:#fff;--card:#fff;--card2:#f1f3f5;--line:#e6e8ec;--tx:#111827;--mut:#6b7280;--ac:#7b5cf0;--acbg:#efeaff;--st:#e3dbff;--stx:#2f1d78;--stv:#f3efff;--stl:#2f1d7833;--ok:#2ecc71;--bad:#ff4d57;--badbg:#ffecee;--tab:#272d37;--tabmut:#8d97a5;--tabh:70px}
 [data-theme=dark]{--bg:#0b0d10;--card:#151a20;--card2:#1d242c;--line:#27303a;--tx:#eef2f6;--mut:#8a97a6;--acbg:#2a2060;--st:#3b2f7a;--stx:#efeaff;--stv:#2b2160;--stl:#efeaff33;--badbg:#3a1a1d}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+html,body{margin:0;overflow-x:hidden;-webkit-text-size-adjust:100%;touch-action:manipulation;background:var(--bg);color:var(--tx);font:16px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
 body{padding:calc(10px + env(safe-area-inset-top)) 0 calc(var(--tabh) + 30px)}
 body.hasmini{padding-bottom:calc(var(--tabh) + 110px)}
 .wrap{max-width:560px;margin:0 auto;padding:0 16px}
@@ -77,7 +78,8 @@ select{appearance:none;-webkit-appearance:none;font-weight:700;text-align:center
 .grab{width:56px;height:6px;border-radius:3px;background:var(--line);margin:2px auto 10px;cursor:pointer}
 #mini .mt{font-size:20px;font-weight:800}#mini .ms{color:var(--mut);font-weight:700;font-size:18px;letter-spacing:1px}
 /* workout sheet */
-#sheet{position:fixed;left:0;right:0;bottom:0;top:calc(env(safe-area-inset-top) + 10px);background:var(--bg);border-radius:22px 22px 0 0;box-shadow:0 -8px 30px #0005;z-index:8;overflow:auto;padding:10px 16px calc(40px + env(safe-area-inset-bottom));display:none;max-width:560px;margin:0 auto;-webkit-overflow-scrolling:touch}
+html.lock,html.lock body{overflow:hidden;height:100%}
+#sheet{overscroll-behavior:contain;overflow-x:hidden;position:fixed;left:0;right:0;bottom:0;top:calc(env(safe-area-inset-top) + 10px);background:var(--bg);border-radius:22px 22px 0 0;box-shadow:0 -8px 30px #0005;z-index:8;overflow:auto;padding:10px 16px calc(40px + env(safe-area-inset-bottom));display:none;max-width:560px;margin:0 auto;-webkit-overflow-scrolling:touch}
 #sheet.on{display:block}
 .wtitle{background:none;font-size:30px;font-weight:800;padding:6px 0;border-radius:0;margin-top:14px;letter-spacing:-.4px}
 .meta{display:flex;align-items:center;gap:10px;color:var(--mut);font-size:19px;font-weight:600;margin:6px 0}
@@ -98,14 +100,15 @@ select{appearance:none;-webkit-appearance:none;font-weight:700;text-align:center
 .addset{background:var(--card2);width:100%;font-weight:700;margin-top:6px}
 /* sticky note */
 .sticky{background:var(--st);color:var(--stx);border-radius:12px;padding:10px;margin:10px 0}
-.sticky select{background:var(--stv);color:var(--stx);font-size:13px;padding:5px 8px;border-radius:8px;width:auto;max-width:210px}
-.stbl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 26px;gap:1px 6px;margin-top:6px;align-items:center}
-.stbl input{background:transparent;color:var(--stx);border-radius:0;border-bottom:1px solid var(--stl);padding:7px 2px;font-size:15px}
-.stbl input.sl{font-weight:600;font-size:14px}
-.stbl input.sv{text-align:right;background:var(--stv);border-radius:6px;border-bottom:0;padding:7px 8px}
-.stbl input::placeholder{color:var(--stx);opacity:.4}
-.stbl .sx{background:none;color:var(--stx);opacity:.6;padding:4px;font-size:13px}
-.sticky .sadd{background:none;color:var(--stx);padding:8px 0 2px;font-size:14px;font-weight:700}
+.sticky .st-top{margin-bottom:8px;font-size:15px}
+.sticky .bsel{width:100%;background:var(--stv);color:var(--stx);height:44px;padding:0 12px;border-radius:10px;font-size:16px;font-weight:700;text-align:left;text-align-last:left;margin-top:6px}
+.srow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 30px;gap:8px;align-items:center;margin:8px 0}
+.srow input,.srow select{height:44px;padding:0 10px;font-size:16px;border-radius:10px;background:var(--stv);color:var(--stx);border:0;width:100%;min-width:0;margin:0}
+.srow input.sl{font-weight:700;background:transparent;padding-left:2px}
+.srow .sv{text-align:right;text-align-last:right;font-weight:700}
+.srow input::placeholder{color:var(--stx);opacity:.4}
+.srow .sx{background:none;color:var(--stx);opacity:.6;padding:0;height:44px;font-size:16px;width:30px}
+.sticky .sadd{background:none;color:var(--stx);padding:8px 0 2px;font-size:16px;font-weight:700}
 /* trends */
 .seg{display:flex;background:var(--card2);border-radius:12px;padding:3px;gap:2px}
 .seg button{flex:1;background:none;padding:8px 0;font-weight:700;color:var(--mut);border-radius:10px}
@@ -128,7 +131,7 @@ select{appearance:none;-webkit-appearance:none;font-weight:700;text-align:center
 .modal{position:fixed;inset:0;background:#0008;z-index:20;display:flex;align-items:flex-end;justify-content:center}
 .msheet{background:var(--bg);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 16px calc(24px + env(safe-area-inset-bottom))}
 .msheet h3{margin:0 0 10px;font-size:22px}
-textarea{min-height:120px;font:13px monospace}
+textarea{min-height:120px;font:16px monospace}
 svg text{fill:var(--mut);font-size:15px}
 </style>
 </head>
@@ -341,6 +344,19 @@ function finishWorkout(){
 // ================= workout sheet =================
 function ssIndex(w,g){const gs=[];w.entries.forEach(e=>{if(e.ss&&!gs.includes(e.ss))gs.push(e.ss)});return gs.indexOf(g)}
 function cols(t){return TYPES[t].a?'38px 1fr 1fr 1fr 44px':'38px 1fr 1fr 44px'}
+const SV_NUM=['1','2','3','4','5','6','7','8','9','10'],SV_LET=['A','B','C','D','E'];
+let otherEdit=null;
+function settingRow(x,b,r,i){
+ const at=`data-id="${x.id}" data-brand="${esc(b)}" data-i="${i}"`;
+ const lab=`<input class="sl" data-f="slabel" ${at} value="${esc(r.k)}" placeholder="Setting" autocapitalize="words">`;
+ const rm=`<button class="sx" data-a="srm" ${at} aria-label="Remove">✕</button>`;
+ const preset=SV_NUM.includes(r.v)||SV_LET.includes(r.v);
+ const isOther=otherEdit&&otherEdit.id===x.id&&otherEdit.brand===b&&otherEdit.i===i;
+ let val;
+ if(isOther)val=`<input class="sv" data-f="sval" ${at} value="${esc(preset?'':r.v)}" placeholder="Type Value" autocapitalize="sentences" data-other="1">`;
+ else val=`<select class="sv" data-f="sselect" ${at}><option value="">–</option><optgroup label="Numbers">${SV_NUM.map(n=>`<option ${r.v===n?'selected':''}>${n}</option>`).join('')}</optgroup><optgroup label="Letters">${SV_LET.map(n=>`<option ${r.v===n?'selected':''}>${n}</option>`).join('')}</optgroup>${r.v&&!preset?`<option value="${esc(r.v)}" selected>${esc(r.v)}</option>`:''}<option value="__other">Other…</option></select>`;
+ return `<div class="srow">${lab}${val}${rm}</div>`;
+}
 function vEntry(w,e,ei){
  const x=ex(e.ex),T=TYPES[x.type]||TYPES.wr,eb=entryBrand(e),prev=lastPerformance(e.ex,eb)||[];
  const ssc=e.ss?SSC[ssIndex(w,e.ss)%SSC.length]:'';
@@ -354,18 +370,19 @@ function vEntry(w,e,ei){
   ${T.a?`<input type="number" inputmode="decimal" data-f="set" data-ei="${ei}" data-si="${si}" data-k="a" value="${esc(s.a)}">`:''}
   <input type="number" inputmode="decimal" data-f="set" data-ei="${ei}" data-si="${si}" data-k="b" value="${esc(s.b)}">
   <button class="chk ${s.done?'on':''}" data-a="done" data-ei="${ei}" data-si="${si}">${IC.chk}</button></div>`}).join('');
- const brandUi=isMachine(x)?(x.fixed?`<span class="sm"><b>${esc(x.brand)}</b></span>`:`<select data-f="brand" data-ei="${ei}">${MBRANDS.map(b=>`<option value="${esc(b)}" ${eb===b?'selected':''}>${esc(b)}</option>`).join('')}</select>`):'';
+ const brandUi=isMachine(x)?(x.fixed?`<div class="sm" style="margin-top:4px"><b>${esc(x.brand)}</b></div>`:`<select class="bsel" data-f="brand" data-ei="${ei}">${MBRANDS.map(b=>`<option value="${esc(b)}" ${eb===b?'selected':''}>${esc(b)}</option>`).join('')}</select>`):'';
  return `<div class="ecard ${e.ss?'ss':''}" style="${e.ss?'--ssc:'+ssc:''}">
  <div class="row sp"><div><span class="ename">${esc(x.name)}</span>${e.ss?'<span class="sspill">Superset</span>':''}</div><button class="dots" data-a="ex-menu" data-ei="${ei}">•••</button></div>
  ${e.target?`<div class="sm mut">Target: ${esc(e.target)}</div>`:''}
- <div class="sticky"><div class="row sp"><span class="sm"><b>${isMachine(x)?'Machine Settings':'Settings'}</b></span>${brandUi}</div>
-  <div class="stbl">${getSettings(x,eb).map((r,i)=>`<input class="sl" data-f="slabel" data-id="${x.id}" data-brand="${esc(eb)}" data-i="${i}" value="${esc(r.k)}" placeholder="Setting" autocapitalize="words"><input class="sv" data-f="sval" data-id="${x.id}" data-brand="${esc(eb)}" data-i="${i}" value="${esc(r.v)}" placeholder="–" autocapitalize="sentences"><button class="sx" data-a="srm" data-id="${x.id}" data-brand="${esc(eb)}" data-i="${i}" aria-label="Remove">✕</button>`).join('')}</div>
+ <div class="sticky"><div class="st-top"><b>${isMachine(x)?'Machine Settings':'Settings'}</b></div>${brandUi}
+  <div class="stbl">${getSettings(x,eb).map((r,i)=>settingRow(x,eb,r,i)).join('')}</div>
   <button class="sadd" data-a="sadd" data-id="${x.id}" data-brand="${esc(eb)}">+ Add Setting</button></div>
  ${head}${rows}
  <button class="addset" data-a="add-set" data-ei="${ei}">+ Add Set</button></div>`;
 }
 function renderSheet(){
  const sh=$('#sheet'),w=S.active;
+ document.documentElement.classList.toggle('lock',!!(w&&wkOpen));
  if(!w||!wkOpen){sh.classList.remove('on');sh.innerHTML='';return}
  const st=sh.scrollTop;sh.classList.add('on');
  sh.innerHTML=`<div class="grab" data-a="minimize"></div>
@@ -866,6 +883,10 @@ document.addEventListener('input',e=>{
 document.addEventListener('change',e=>{
  const t=e.target,f=t.dataset.f;if(!f)return;
  if(f==='trex'){trEx=t.value;renderMain()}
+ else if(f==='sselect'){
+  const x=S.exercises.find(x=>x.id===t.dataset.id);if(!x)return;const i=+t.dataset.i,b=t.dataset.brand;
+  if(t.value==='__other'){otherEdit={id:x.id,brand:b,i};renderSheet();const el=document.querySelector('input[data-other="1"]');if(el)el.focus();return}
+  const r=getSettings(x,b)[i];if(r){r.v=t.value;save()}renderSheet()}
  else if(f==='machtoggle'){$('#xbwrap').style.display=t.checked?'block':'none'}
  else if(f==='brand'){const en=S.active.entries[+t.dataset.ei],x=S.exercises.find(x=>x.id===en.ex);en.brand=t.value;if(x)x.brand=t.value;save();renderSheet()}
  else if(f==='xbody'){xf.body=t.value;renderXList()}
@@ -873,7 +894,7 @@ document.addEventListener('change',e=>{
  else if(f==='pbody'){pick.body=t.value;pkList()}
  else if(f==='pcat'){pick.cat=t.value;pkList()}
  else if(f==='wname'){t.value=titleCase(t.value);S.active.name=t.value;save();renderMini()}
- else if(f==='slabel'||f==='sval'){t.value=cap(t.value);const x=S.exercises.find(x=>x.id===t.dataset.id);if(x){const r=getSettings(x,t.dataset.brand)[+t.dataset.i];if(r){r[f==='slabel'?'k':'v']=t.value;save()}}}
+ else if(f==='slabel'||f==='sval'){if(f==='sval'&&otherEdit){otherEdit=null;setTimeout(renderSheet,0)}t.value=cap(t.value);const x=S.exercises.find(x=>x.id===t.dataset.id);if(x){const r=getSettings(x,t.dataset.brand)[+t.dataset.i];if(r){r[f==='slabel'?'k':'v']=t.value;save()}}}
 });
 
 migrate();
