@@ -119,6 +119,38 @@ html.lock,html.lock body{overflow:hidden;height:100%}
 .dragging{position:relative;z-index:30;box-shadow:0 10px 30px #0006;opacity:.97;transition:none}
 .ecard{transition:transform .12s}
 .msel{flex:1;min-width:0;height:40px;font-size:16px;font-weight:600;text-align:left;text-align-last:left;padding:0 10px}
+.chev-btn{width:36px;height:36px;border-radius:50%;padding:0;background:var(--acbg);color:var(--ac);display:flex;align-items:center;justify-content:center;flex:none}
+.chev-btn svg{transition:transform .15s}.chev-btn.up svg{transform:rotate(180deg)}
+.sticky .chev-btn{background:#7F77DD40;color:var(--stx)}
+.shead2{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:14px}
+.shead2 b{flex:none;font-size:13px}
+.bsel2{flex:1;min-width:0;height:36px;background:var(--stv);color:var(--stx);border-radius:9px;padding:0 10px;font-size:16px;font-weight:700;text-align:left;text-align-last:left}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cell{position:relative;min-width:0}
+.cell input.lb{width:100%;height:20px;padding:0;border:none;background:none;font-size:16px;color:var(--stx);opacity:.75;font-weight:600;margin:0 0 2px}
+.cell .sv{width:100%;height:38px;padding:0 10px;font-size:16px;border-radius:8px;background:var(--stv);color:var(--stx);border:0;margin:0;font-weight:700;text-align:right;text-align-last:right}
+.xb{position:absolute;top:-6px;right:-4px;width:22px;height:22px;border-radius:50%;background:var(--bg);border:1px solid var(--stl);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--stx);cursor:pointer;z-index:2}
+.addc{height:62px;border:1.5px dashed var(--stl);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;background:none;color:var(--stx);padding:0}
+.trow{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 2px}
+.seg2{display:flex}
+.trow .seg{background:var(--card2);border-radius:9px;padding:2px;gap:2px;box-shadow:none}
+.trow .seg span{padding:6px 10px;border-radius:7px;font-size:13px;font-weight:600;color:var(--mut);cursor:pointer;white-space:nowrap}
+.trow .seg span.on{background:var(--card);color:var(--tx);box-shadow:0 1px 3px #0003}
+.tray{border:1px solid var(--ac);border-radius:12px;padding:10px;margin:6px 0;background:var(--card)}
+.trp{display:flex;align-items:center;justify-content:space-between;gap:3px;padding:8px 2px 4px}
+.pl{border:1px solid var(--line);background:var(--card);border-radius:50%;padding:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;position:relative;flex:none;color:var(--tx)}
+.pl b{position:absolute;top:-7px;right:-7px;min-width:20px;height:20px;border-radius:10px;background:#534AB7;color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;padding:0 3px}
+.mini{padding:8px 10px;font-size:13px;white-space:nowrap}
+.trsel{width:auto;height:34px;font-size:16px;padding:0 8px;font-weight:600}
+.vz{display:flex;align-items:center;height:56px;margin:0 0 4px}
+.vzs{flex:1;min-width:0;display:flex;justify-content:flex-end;align-items:center}
+.vzs.r{justify-content:flex-start}
+.vzc{width:10px;height:22px;background:#9aa0aa;border-radius:2px;flex:none}
+.vzsh{width:70px;height:8px;background:#9aa0aa;flex:none}
+.arm{display:flex;align-items:center;gap:6px;height:30px}.arm span{width:14px;font-size:12px;color:var(--mut)}
+.arm .vzs{flex:1}
+.wfld{height:46px;border-radius:10px;background:var(--card2);color:var(--tx);font-weight:700;font-size:16px;padding:0;text-align:center;width:100%}
+.wfld.sel{outline:2px solid var(--ac);outline-offset:-2px}
 /* misc */
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:12px 0}
 .pill{display:inline-block;background:var(--card2);border-radius:20px;padding:2px 9px;font-size:12px;color:var(--mut);margin-right:4px}
@@ -222,6 +254,7 @@ const IC={
  cal:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke-linecap="round"/></svg>',
  chart:'<svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><rect x="3" y="12" width="4.5" height="9" rx="1.2"/><rect x="9.8" y="6" width="4.5" height="15" rx="1.2"/><rect x="16.5" y="2.5" width="4.5" height="18.5" rx="1.2"/></svg>',
  grip:'<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><circle cx="9" cy="6" r="1.8"/><circle cx="15" cy="6" r="1.8"/><circle cx="9" cy="12" r="1.8"/><circle cx="15" cy="12" r="1.8"/><circle cx="9" cy="18" r="1.8"/><circle cx="15" cy="18" r="1.8"/></svg>',
+ cd:'<svg viewBox="0 0 24 24" width="20" height="20"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
  timer:'<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="13.5" r="8"/><path d="M12 9.5v4l2.5 1.5M9.5 2.5h5"/></svg>'
 };
 function setLabel(t,s){
@@ -321,6 +354,7 @@ function newEntry(exId,n=3,target,brand,ss,opt){
  const en={ex:exId,brand:brand||brandOf(x),target:target||'',ss:ss||'',sets};
  en.cs=getSettings(x,entryBrand(en)).some(r=>r.v);
  if(cardio){en.metric=x.metric||'km';en.interval=cn>1}
+ if(x.single)sets.forEach((st,i)=>{st.side=i%2?'R':'L'});
  return en;
 }
 function startWorkout(name,items,tpl){
@@ -352,22 +386,20 @@ function ssIndex(w,g){const gs=[];w.entries.forEach(e=>{if(e.ss&&!gs.includes(e.
 function cols(t){return TYPES[t].a?'38px 1fr 1fr 1fr 44px':'38px 1fr 1fr 44px'}
 const SV_NUM=['1','2','3','4','5','6','7','8','9','10'],SV_LET=['A','B','C','D','E'];
 let otherEdit=null;
-function settingRow(x,b,r,i){
+function settingCell(x,b,r,i,expanded){
  const at=`data-id="${x.id}" data-brand="${esc(b)}" data-i="${i}"`;
- const lab=`<input class="sl" data-f="slabel" ${at} value="${esc(r.k)}" placeholder="Setting" autocapitalize="words">`;
- const rm=`<button class="sx" data-a="srm" ${at} aria-label="Remove">✕</button>`;
  const preset=SV_NUM.includes(r.v)||SV_LET.includes(r.v);
  const isOther=otherEdit&&otherEdit.id===x.id&&otherEdit.brand===b&&otherEdit.i===i;
- let val;
- if(isOther)val=`<input class="sv" data-f="sval" ${at} value="${esc(preset?'':r.v)}" placeholder="Type Value" autocapitalize="sentences" data-other="1">`;
- else val=`<select class="sv" data-f="sselect" ${at}><option value="">–</option><optgroup label="Numbers">${SV_NUM.map(n=>`<option ${r.v===n?'selected':''}>${n}</option>`).join('')}</optgroup><optgroup label="Letters">${SV_LET.map(n=>`<option ${r.v===n?'selected':''}>${n}</option>`).join('')}</optgroup>${r.v&&!preset?`<option value="${esc(r.v)}" selected>${esc(r.v)}</option>`:''}<option value="__other">Other…</option></select>`;
- return `<div class="srow">${lab}${val}${rm}</div>`;
+ const val=isOther?`<input class="sv" data-f="sval" ${at} value="${esc(preset?'':r.v)}" placeholder="Type Value" autocapitalize="sentences" data-other="1">`
+  :`<select class="sv" data-f="sselect" ${at}><option value="">–</option><optgroup label="Numbers">${SV_NUM.map(n=>`<option ${r.v===n?'selected':''}>${n}</option>`).join('')}</optgroup><optgroup label="Letters">${SV_LET.map(n=>`<option ${r.v===n?'selected':''}>${n}</option>`).join('')}</optgroup>${r.v&&!preset?`<option value="${esc(r.v)}" selected>${esc(r.v)}</option>`:''}<option value="__other">Other…</option></select>`;
+ return `<div class="cell">${expanded&&i>=2?`<span class="xb" data-a="srm" ${at}>×</span>`:''}<input class="lb" data-f="slabel" ${at} value="${esc(r.k)}" placeholder="Setting" autocapitalize="words">${val}</div>`;
 }
 // ---- display names, cardio helpers
 function pretty(name,b){
  if(!b||b==='Any')return name;
  if(name.toLowerCase().includes(String(b).toLowerCase()))return name;
- return name.replace(/\s*\(machine\)\s*$/i,'')+' ('+b+')';
+ const m=name.match(/^(.*?)\s*\(machine\)(.*)$/i);
+ return m?`${m[1]} (${b})${m[2]}`:`${name} (${b})`;
 }
 function dispName(x,b){return (!isMachine(x)||x.fixed||x.type==='dist')?x.name:pretty(x.name,b)}
 const CMET={km:'Km',cal:'Cal',level:'Level',speed:'Km/h',floors:'Floors'};
@@ -393,35 +425,84 @@ function cardioBlock(e,ei,prev){
  return `<div class="row" style="margin:8px 0;gap:8px"><select class="msel" data-f="cmetric" data-ei="${ei}">${Object.keys(CMET).map(k=>`<option value="${k}" ${k===met?'selected':''}>${CMET_LONG[k]}</option>`).join('')}</select><button class="lb" data-a="cint" data-ei="${ei}">${interval?'Single Entry':'Track Intervals'}</button></div>
  ${head}${rows}${last}${interval?`<button class="addset" data-a="add-set" data-ei="${ei}">+ Add Interval</button>`:''}`;
 }
+// ---- plate mode helpers
+const PLATES={lb:[45,35,25,10,5,2.5],kg:[25,20,15,10,5,2.5,1.25]},BARS={lb:[45,35,25,15],kg:[20,15,10]};
+const isPlateLoaded=(x,b)=>isMachine(x)&&b==='Hammer Strength Plate Loaded';
+const barLike=x=>x.type==='wr'&&!isMachine(x)&&catOf(x)==='Barbell';
+const plateOk=(x,b)=>x.type==='wr'&&(barLike(x)||isPlateLoaded(x,b));
+const singleOk=x=>x.type==='wr'&&(isMachine(x)||catOf(x)==='Cable'||!!x.single);
+const isLeg=x=>/legs|glutes/i.test(x.muscle||'');
+const plSide=pl=>Object.keys(pl||{}).reduce((n,k)=>n+(+k)*pl[k],0);
+const plMult=x=>barLike(x)?2:(x.single?1:2);
+const plBase=(e,x)=>barLike(x)?(e.bar!=null?e.bar:(x.bar!=null?x.bar:(unit()==='kg'?20:45))):(e.start!=null?e.start:(x.start||0));
+function plApply(en){const x=ex(en.ex);en.sets.forEach(s=>{if(s.pl&&Object.keys(s.pl).length)s.a=String(Math.round((plBase(en,x)+plMult(x)*plSide(s.pl))*100)/100)})}
+let trayAt=null;
+function plateViz(x,s,cnt,P,vh){
+ const list=[];P.forEach((p,i)=>{for(let k=0;k<(cnt[p]||0);k++)list.push(i)});
+ const w=Math.max(3,Math.min(9,Math.floor(95/Math.max(list.length,1))-2));
+ const pcs=dir=>`<div style="display:flex;align-items:center;flex-direction:${dir}">${list.map(i=>`<div style="width:${w}px;height:${vh(i)}px;border-radius:2px;background:#534AB7;margin:0 1px"></div>`).join('')}<div style="width:12px;height:6px;background:#9aa0aa;border-radius:3px"></div></div>`;
+ if(barLike(x))return `<div class="vz"><div class="vzs">${pcs('row-reverse')}</div><div class="vzc"></div><div class="vzsh"></div><div class="vzc"></div><div class="vzs r">${pcs('row')}</div></div>`;
+ const arm=(l,on)=>`<div class="arm" style="opacity:${on?1:.3}"><span>${l}</span><div class="vzsh" style="width:56px"></div><div class="vzc" style="height:20px"></div><div class="vzs r">${on?pcs('row'):''}</div></div>`;
+ const side=s.side||'R';
+ return `<div style="margin:0 0 6px">${arm('L',x.single?side==='L':true)}${arm('R',x.single?side==='R':true)}</div>`;
+}
+function trayHTML(e,ei,si,x){
+ const s=e.sets[si],u=unit(),P=PLATES[u],n=P.length,cnt=s.pl||{};
+ const dia=i=>Math.round(46-i*(14/(n-1))),vh=i=>Math.round(50-i*(32/(n-1)));
+ const bl=barLike(x),base=plBase(e,x),mult=plMult(x),side=plSide(cnt),total=Math.round((base+mult*side)*100)/100;
+ const opts=bl?BARS[u]:[0,10,20,25,30,40,50];
+ const lab=v=>(bl&&v===(u==='kg'?10:25))?`EZ ${v} ${u}`:`${v} ${u}`;
+ const nm=bl?'bar':'start',per=bl?'side':'arm';
+ const at=`data-ei="${ei}" data-si="${si}"`;
+ let nth=0;for(let k=0;k<=si;k++)if(!e.sets[k].t)nth++;
+ return `<div class="tray"><div class="row sp" style="margin:0 0 8px"><b style="font-size:13px">Set ${s.t||nth}${x.single&&s.side?s.side:''}, plates per ${x.single&&!bl?'one arm':per}</b><div class="row" style="gap:6px"><span class="lbl">${bl?'Bar':'Start'}</span><select class="trsel" data-f="trbase" data-ei="${ei}">${opts.map(v=>`<option value="${v}" ${v===base?'selected':''}>${esc(lab(v))}</option>`).join('')}${opts.includes(base)?'':`<option value="${base}" selected>${base} ${u}</option>`}</select></div></div>
+ ${plateViz(x,s,cnt,P,vh)}
+ <div class="trp">${P.map((p,i)=>`<button class="pl" style="width:${dia(i)}px;height:${dia(i)}px" data-a="plate" ${at} data-p="${p}" aria-label="Add ${p} ${u} plate">${p}${cnt[p]?`<b data-a="plate-rm" ${at} data-p="${p}">${cnt[p]}</b>`:''}</button>`).join('')}</div>
+ <div class="row sp" style="margin-top:10px;gap:8px"><div class="sm mut">${base} ${nm} + ${mult===2?'2 × ':''}${Math.round(side*100)/100} = <b style="color:var(--tx)">${total} ${u}</b></div><div class="row" style="gap:6px"><button class="mini" data-a="pl-undo" ${at}>Undo</button><button class="mini" data-a="pl-clr" ${at}>Clear</button></div></div>
+ <div class="row" style="margin-top:8px;gap:6px;flex-wrap:wrap"><button class="mini grow" data-a="pl-same" ${at}>Same as last set</button><button class="mini" data-a="pl-kb" ${at}>Type instead</button><button class="mini" data-a="tray-x">Done</button></div></div>`;
+}
+function togglesHTML(x,eb,ei){
+ const sOk=singleOk(x),pOk=plateOk(x,eb);if(!sOk&&!pOk)return '';
+ const leg=isLeg(x);
+ return `<div class="trow">${sOk?`<div class="seg"><span class="${x.single?'':'on'}" data-a="sgl" data-ei="${ei}" data-want="both">${leg?'Both legs':'Both arms'}</span><span class="${x.single?'on':''}" data-a="sgl" data-ei="${ei}" data-want="one">${leg?'Single leg':'Single arm'}</span></div>`:''}${pOk?`<div class="seg"><span class="${x.pm?'':'on'}" data-a="pmode" data-ei="${ei}" data-v="0">Weight</span><span class="${x.pm?'on':''}" data-a="pmode" data-ei="${ei}" data-v="1">Plates</span></div>`:''}</div>`;
+}
+function variantFor(x){
+ if(x.single)return S.exercises.find(p=>p.id===x.parent)||null;
+ let v=S.exercises.find(y=>y.single&&y.parent===x.id);
+ if(!v){v=JSON.parse(JSON.stringify(x));v.id=uid();v.name=x.name+(isLeg(x)?' – Single Leg':' – Single Arm');v.parent=x.id;v.single=true;S.exercises.push(v)}
+ return v;
+}
 function vEntry(w,e,ei){
  const x=ex(e.ex),T=TYPES[x.type]||TYPES.wr,eb=entryBrand(e),prev=lastPerformance(e.ex,eb)||[];
  const ssc=e.ss?SSC[ssIndex(w,e.ss)%SSC.length]:'';
  const title=dispName(x,eb);
- const head0=`<div class="ehead"><button class="drag" data-drag="${ei}" aria-label="Drag to reorder">${IC.grip}</button><div class="etitle" data-a="ecol" data-ei="${ei}"><span class="ename">${esc(title)}</span>${e.ss?'<span class="sspill">Superset</span>':''}<span class="chev">${e.col?'▸':'▾'}</span></div><button class="dots" data-a="ex-menu" data-ei="${ei}">•••</button></div>`;
+ const head0=`<div class="ehead"><button class="drag" data-drag="${ei}" aria-label="Drag to reorder">${IC.grip}</button><div class="etitle" data-a="ecol" data-ei="${ei}"><span class="ename">${esc(title)}</span>${e.ss?'<span class="sspill">Superset</span>':''}</div><button class="chev-btn ${e.col?'':'up'}" data-a="ecol" data-ei="${ei}" aria-label="Collapse or expand exercise">${IC.cd}</button><button class="dots" data-a="ex-menu" data-ei="${ei}">•••</button></div>`;
  const wrapA=`<div class="ecard ${e.ss?'ss':''}" data-ecard="${ei}" style="${e.ss?'--ssc:'+ssc:''}">`;
  if(e.col)return `${wrapA}${head0}<div class="sm mut esum" data-a="ecol" data-ei="${ei}">${esc(entrySummary(x,e))}</div></div>`;
- const rowsS=getSettings(x,eb),hasVals=rowsS.some(r=>r.v);
- const sCol=e.cs===true;
- const sumTxt=rowsS.filter(r=>r.v).map(r=>`${esc(r.k)} ${esc(r.v)}`).join(' · ');
- const brandUi=isMachine(x)?(x.fixed?`<div class="sm" style="margin:2px 0 4px"><b>${esc(x.brand)}</b></div>`:`<select class="bsel" data-f="brand" data-ei="${ei}">${MBRANDS.map(b=>`<option value="${esc(b)}" ${eb===b?'selected':''}>${esc(b)}</option>`).join('')}</select>`):'';
- const sticky=`<div class="sticky"><div class="shead" data-a="scol" data-ei="${ei}"><b>${isMachine(x)?'Machine Settings':'Settings'}</b>${sCol&&sumTxt?`<span class="ssum">${sumTxt}</span>`:''}<span class="chev">${sCol?'▸':'▾'}</span></div>${brandUi}
-  ${sCol?'':`<div class="stbl">${rowsS.map((r,i)=>settingRow(x,eb,r,i)).join('')}</div><button class="sadd" data-a="sadd" data-id="${x.id}" data-brand="${esc(eb)}">+ Add Setting</button>`}</div>`;
+ const rowsS=getSettings(x,eb),expd=e.sx===true;
+ const shown=expd?rowsS:rowsS.slice(0,2);
+ const brandHdr=isMachine(x)?(x.fixed?`<span class="sm" style="flex:1;min-width:0"><b>${esc(x.brand)}</b></span>`:`<select class="bsel2" data-f="brand" data-ei="${ei}">${MBRANDS.map(b=>`<option value="${esc(b)}" ${eb===b?'selected':''}>${esc(b)}</option>`).join('')}</select>`):'<span style="flex:1"></span>';
+ const sticky=`<div class="sticky"><div class="shead2"><b>${isMachine(x)?'Machine Settings':'Settings'}</b>${brandHdr}<button class="chev-btn ${expd?'up':''}" data-a="scol" data-ei="${ei}" aria-label="Show more settings">${IC.cd}</button></div>
+  <div class="g2">${shown.map((r,i)=>settingCell(x,eb,r,i,expd)).join('')}${expd?`<button class="addc" data-a="sadd" data-id="${x.id}" data-brand="${esc(eb)}">+ Add Setting</button>`:''}</div></div>`;
  let body;
  if(x.type==='dist')body=cardioBlock(e,ei,prev);
  else{
+  const pm=!!x.pm&&plateOk(x,eb);
   let n=0;
   const hd=`<div class="sethead" style="grid-template-columns:${cols(x.type)}"><span>SET</span><span>PREVIOUS</span>${T.a?`<span>${(T.a==='WEIGHT'||T.a==='+WEIGHT')?T.a+' ('+unit().toUpperCase()+')':T.a}</span>`:''}<span>${T.b}</span><span></span></div>`;
   const rows=e.sets.map((s,si)=>{
-   if(!s.t)n++;const lab=s.t||n,p=prev[si];
-   return `<div class="setrow ${s.done?'done':''}" style="grid-template-columns:${cols(x.type)}">
+   if(!s.t)n++;const lab=s.t||(n+(x.single&&s.side?s.side:'')),p=prev[si];
+   const here=pm&&trayAt&&trayAt.ei===ei&&trayAt.si===si;
+   const wcell=T.a?((pm&&!s.kb)?`<button class="wfld ${here?'sel':''}" data-a="tray" data-ei="${ei}" data-si="${si}">${s.a!==''&&s.a!=null?esc(s.a):'–'}</button>`:`<input type="number" inputmode="decimal" data-f="set" data-ei="${ei}" data-si="${si}" data-k="a" value="${esc(s.a)}">`):'';
+   return `${here?trayHTML(e,ei,si,x):''}<div class="setrow ${s.done?'done':''}" style="grid-template-columns:${cols(x.type)}">
    <button class="sn ${s.t||''}" data-a="settype" data-ei="${ei}" data-si="${si}">${lab}</button>
    <button class="prev" data-a="prevfill" data-ei="${ei}" data-si="${si}">${p?esc(compact(x.type,p)):'–'}</button>
-   ${T.a?`<input type="number" inputmode="decimal" data-f="set" data-ei="${ei}" data-si="${si}" data-k="a" value="${esc(s.a)}">`:''}
+   ${wcell}
    <input type="number" inputmode="decimal" data-f="set" data-ei="${ei}" data-si="${si}" data-k="b" value="${esc(s.b)}">
    <button class="chk ${s.done?'on':''}" data-a="done" data-ei="${ei}" data-si="${si}">${IC.chk}</button></div>`}).join('');
   body=`${hd}${rows}<button class="addset" data-a="add-set" data-ei="${ei}">+ Add Set</button>`;
  }
- return `${wrapA}${head0}${e.target?`<div class="sm mut">Target: ${esc(e.target)}</div>`:''}${sticky}${body}</div>`;
+ return `${wrapA}${head0}${e.target?`<div class="sm mut">Target: ${esc(e.target)}</div>`:''}${togglesHTML(x,eb,ei)}${sticky}${body}</div>`;
 }
 function renderSheet(){
  const sh=$('#sheet'),w=S.active;
@@ -550,7 +631,7 @@ async function guard(fn){
 function workoutPayload(w){
  const d=new Date(w.start),p=n=>String(n).padStart(2,'0');
  return {id:w.id,name:w.name,tpl:w.tpl||'',date:w.date||`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`,time:w.time||`${p(d.getHours())}:${p(d.getMinutes())}`,start:w.start,end:w.end,unit:unit(),
-  entries:w.entries.map(e=>{const x=ex(e.ex),b=entryBrand(e);return {ex:x.name,kind:x.type,brand:b==='Any'?'':b,ss:e.ss||'',metric:x.type==='dist'?CMET_LONG[e.metric||'km']:'',sets:e.sets.map(s=>({t:s.t||'',a:s.a,b:s.b}))}})};
+  entries:w.entries.map(e=>{const x=ex(e.ex),b=entryBrand(e);return {ex:x.name,kind:x.type,brand:b==='Any'?'':b,ss:e.ss||'',metric:x.type==='dist'?CMET_LONG[e.metric||'km']:'',sets:e.sets.map(s=>({t:s.t||'',a:s.a,b:s.b,side:s.side||''}))}})};
 }
 function settingsPayload(w){
  const seen={},out=[];
@@ -842,13 +923,26 @@ document.addEventListener('click',e=>{
   case 'ss-prev':{const en=w.entries[+d.ei],pv=w.entries[+d.ei-1];const g=pv.ss||uid();pv.ss=g;en.ss=g;save();closeModal();renderSheet();break}
   case 'ss-off':{const g=w.entries[+d.ei].ss;w.entries[+d.ei].ss='';if(w.entries.filter(x=>x.ss===g).length<2)w.entries.forEach(x=>{if(x.ss===g)x.ss=''});save();closeModal();renderSheet();break}
   case 'ecol':w.entries[+d.ei].col=!w.entries[+d.ei].col;save();renderSheet();break;
-  case 'scol':{const en=w.entries[+d.ei];en.cs=!(en.cs===true);save();renderSheet();break}
+  case 'scol':{const en=w.entries[+d.ei];en.sx=!(en.sx===true);save();renderSheet();break}
   case 'cint':{const en=w.entries[+d.ei];if(en.interval){en.sets=[en.sets[0]];en.interval=false}else{en.interval=true}save();renderSheet();break}
-  case 'mv-up':{const i=+d.ei;[w.entries[i-1],w.entries[i]]=[w.entries[i],w.entries[i-1]];save();closeModal();renderSheet();break}
-  case 'mv-dn':{const i=+d.ei;[w.entries[i+1],w.entries[i]]=[w.entries[i],w.entries[i+1]];save();closeModal();renderSheet();break}
-  case 'rm-ex':w.entries.splice(+d.ei,1);save();closeModal();renderSheet();break;
-  case 'add-set':w.entries[+d.ei].sets.push({a:'',b:'',done:false,t:''});save();renderSheet();break;
-  case 'settype':modal(`<h3>Set Type</h3>${[['','Normal'],['W','Warm Up'],['D','Drop Set'],['F','Failure']].map(([v,l])=>`<button class="mi" data-a="stype" data-ei="${d.ei}" data-si="${d.si}" data-v="${v}">${l}</button>`).join('')}<button class="mi bad" data-a="sdel" data-ei="${d.ei}" data-si="${d.si}">Delete Set</button>`);break;
+  case 'mv-up':{trayAt=null;const i=+d.ei;[w.entries[i-1],w.entries[i]]=[w.entries[i],w.entries[i-1]];save();closeModal();renderSheet();break}
+  case 'mv-dn':{trayAt=null;const i=+d.ei;[w.entries[i+1],w.entries[i]]=[w.entries[i],w.entries[i+1]];save();closeModal();renderSheet();break}
+  case 'rm-ex':trayAt=null;w.entries.splice(+d.ei,1);save();closeModal();renderSheet();break;
+  case 'add-set':{const en=w.entries[+d.ei],ns={a:'',b:'',done:false,t:''};if(ex(en.ex).single){const l=en.sets[en.sets.length-1];ns.side=l&&l.side==='L'?'R':'L'}en.sets.push(ns);save();renderSheet();break}
+  case 'sgl':{const en=w.entries[+d.ei],x=ex(en.ex);if((d.want==='one')===!!x.single)break;const v=variantFor(x);if(!v){toast('Original exercise not found');break}
+   v.pm=x.pm;en.ex=v.id;en.sets.forEach((s,i)=>{if(v.single)s.side=s.side||(i%2?'R':'L');else delete s.side});plApply(en);trayAt=null;save();renderSheet();break}
+  case 'pmode':{const en=w.entries[+d.ei],x=S.exercises.find(x=>x.id===en.ex);if(x){x.pm=d.v==='1'}trayAt=null;save();renderSheet();break}
+  case 'tray':{const k={ei:+d.ei,si:+d.si};trayAt=(trayAt&&trayAt.ei===k.ei&&trayAt.si===k.si)?null:k;renderSheet();break}
+  case 'tray-x':trayAt=null;renderSheet();break;
+  case 'plate':{const en=w.entries[+d.ei],s=en.sets[+d.si];s.pl=s.pl||{};s.pl[d.p]=(s.pl[d.p]||0)+1;s.plh=(s.plh||[]).concat(d.p);plApply(en);save();renderSheet();break}
+  case 'plate-rm':{const en=w.entries[+d.ei],s=en.sets[+d.si];if(s.pl&&s.pl[d.p]){s.pl[d.p]--;if(!s.pl[d.p])delete s.pl[d.p];const i=(s.plh||[]).lastIndexOf(d.p);if(i>-1)s.plh.splice(i,1)}if(!Object.keys(s.pl||{}).length){s.a='';delete s.pl;delete s.plh}else plApply(en);save();renderSheet();break}
+  case 'pl-undo':{const en=w.entries[+d.ei],s=en.sets[+d.si],p=(s.plh||[]).pop();if(p&&s.pl){s.pl[p]--;if(!s.pl[p])delete s.pl[p]}if(!Object.keys(s.pl||{}).length){s.a='';delete s.pl;delete s.plh}else plApply(en);save();renderSheet();break}
+  case 'pl-clr':{const en=w.entries[+d.ei],s=en.sets[+d.si];delete s.pl;delete s.plh;s.a='';save();renderSheet();break}
+  case 'pl-same':{const en=w.entries[+d.ei],s=en.sets[+d.si];let src=null;for(let k=+d.si-1;k>=0;k--)if(en.sets[k].pl&&Object.keys(en.sets[k].pl).length){src=en.sets[k];break}
+   if(!src){toast('No earlier set with plates');break}s.pl=JSON.parse(JSON.stringify(src.pl));s.plh=(src.plh||[]).slice();plApply(en);save();renderSheet();break}
+  case 'pl-kb':{const s=w.entries[+d.ei].sets[+d.si];s.kb=true;trayAt=null;save();renderSheet();break}
+  case 'sside':{w.entries[+d.ei].sets[+d.si].side=d.v;save();closeModal();renderSheet();break}
+  case 'settype':modal(`<h3>Set Type</h3>${[['','Normal'],['W','Warm Up'],['D','Drop Set'],['F','Failure']].map(([v,l])=>`<button class="mi" data-a="stype" data-ei="${d.ei}" data-si="${d.si}" data-v="${v}">${l}</button>`).join('')}${ex(w.entries[+d.ei].ex).single?`<button class="mi" data-a="sside" data-ei="${d.ei}" data-si="${d.si}" data-v="L">Left Side</button><button class="mi" data-a="sside" data-ei="${d.ei}" data-si="${d.si}" data-v="R">Right Side</button>`:''}<button class="mi bad" data-a="sdel" data-ei="${d.ei}" data-si="${d.si}">Delete Set</button>`);break;
   case 'stype':w.entries[+d.ei].sets[+d.si].t=d.v;save();closeModal();renderSheet();break;
   case 'sdel':{const en=w.entries[+d.ei];en.sets.splice(+d.si,1);save();closeModal();renderSheet();break}
   case 'prevfill':{const en=w.entries[+d.ei],s=en.sets[+d.si],p=(lastPerformance(en.ex,entryBrand(en))||[])[+d.si];if(p&&!s.done){s.a=p.a??'';s.b=p.b??'';save();renderSheet()}break}
@@ -916,7 +1010,7 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('input',e=>{
  const t=e.target,f=t.dataset.f;if(!f)return;
- if(f==='set'){const s=S.active.entries[+t.dataset.ei].sets[+t.dataset.si];s[t.dataset.k]=t.value;save()}
+ if(f==='set'){const s=S.active.entries[+t.dataset.ei].sets[+t.dataset.si];s[t.dataset.k]=t.value;if(t.dataset.k==='a'&&s.pl){delete s.pl;delete s.plh}save()}
  else if(f==='wname'){S.active.name=t.value;save()}
  else if(f==='restdef'){S.settings.rest=Math.max(5,num(t.value)||90);save()}
  else if(f==='slabel'||f==='sval'){const x=S.exercises.find(x=>x.id===t.dataset.id);if(x){const r=getSettings(x,t.dataset.brand)[+t.dataset.i];if(r){r[f==='slabel'?'k':'v']=t.value;save()}}}
@@ -929,6 +1023,7 @@ document.addEventListener('input',e=>{
 document.addEventListener('change',e=>{
  const t=e.target,f=t.dataset.f;if(!f)return;
  if(f==='trex'){trEx=t.value;renderMain()}
+ else if(f==='trbase'){const en=S.active.entries[+t.dataset.ei],x=S.exercises.find(x=>x.id===en.ex),v=+t.value;if(x){if(barLike(x)){en.bar=v;x.bar=v}else{en.start=v;x.start=v}}plApply(en);save();renderSheet()}
  else if(f==='cmetric'){const en=S.active.entries[+t.dataset.ei],x=S.exercises.find(x=>x.id===en.ex);en.metric=t.value;if(x)x.metric=t.value;save();renderSheet()}
  else if(f==='sselect'){
   const x=S.exercises.find(x=>x.id===t.dataset.id);if(!x)return;const i=+t.dataset.i,b=t.dataset.brand;
