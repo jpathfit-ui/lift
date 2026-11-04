@@ -124,6 +124,7 @@ html.lock,html.lock body{overflow:hidden;height:100%}
 .sticky .chev-btn{background:#7F77DD40;color:var(--stx);width:32px;height:32px}
 .shead2{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:14px}
 .shead2 b{flex:none;font-size:13px}
+.shead3{display:flex;align-items:center;gap:8px;margin-bottom:5px}
 .bsel2{flex:1;min-width:0;height:32px;background:var(--stv);color:var(--stx);border-radius:8px;padding:0 9px;font-size:16px;font-weight:700;text-align:left;text-align-last:left}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .cell{position:relative;min-width:0}
@@ -199,7 +200,15 @@ const KEY='lift.v1';
 let S;
 const uid=()=>Math.random().toString(36).slice(2,10);
 const TYPES={wr:{n:'Weight × Reps',a:'WEIGHT',b:'REPS'},bw:{n:'Bodyweight (+ Added Weight)',a:'+WEIGHT',b:'REPS'},reps:{n:'Reps Only',b:'REPS'},time:{n:'Duration',b:'SECONDS'},dist:{n:'Distance + Time',a:'KM',b:'MIN'}};
-const MBRANDS=['Life Fitness','Precor','Matrix','Hoist','Hammer Strength MTS','Hammer Strength Plate Loaded'];
+const ARS=['Arsenal M-1','Arsenal Reloaded','Arsenal FORGE-X'];
+const ARSL={'Arsenal M-1':'M-1 (Pin Loaded)','Arsenal Reloaded':'Reloaded (Plate Loaded)','Arsenal FORGE-X':'FORGE-X (Plate Loaded)'};
+const MBRANDS=['Life Fitness','Precor','Matrix','Hoist','Prime',...ARS,'Hammer Strength MTS','Hammer Strength Plate Loaded'];
+const PLATE_BRANDS=['Hammer Strength Plate Loaded','Arsenal Reloaded','Arsenal FORGE-X'];
+const isArs=b=>ARS.includes(b);
+// Brand picker is two steps for Arsenal: pick Arsenal Strength, then pick the line
+const brandOpts=cur=>{let d=false;return MBRANDS.map(b=>{if(isArs(b)){if(d)return '';d=true;return `<option value="Arsenal" ${isArs(cur)?'selected':''}>Arsenal Strength</option>`}return `<option value="${esc(b)}" ${cur===b?'selected':''}>${esc(b)}</option>`}).join('')};
+const lineOpts=cur=>ARS.map(b=>`<option value="${esc(b)}" ${cur===b?'selected':''}>${esc(ARSL[b])}</option>`).join('');
+const pickBrand=v=>v==='Arsenal'?ARS[0]:v;
 const CATS=['Barbell','Dumbbell','Machine','Cable','Bodyweight','Reps Only','Duration','Cardio','Other'];
 const cap=s=>s?String(s).charAt(0).toUpperCase()+String(s).slice(1):s;
 const titleCase=s=>String(s).replace(/(^|[\s(\-\/])([a-z])/g,(m,a,b)=>a+b.toUpperCase());
@@ -457,7 +466,7 @@ function cardioBlock(e,ei,prev){
 }
 // ---- plate mode helpers
 const PLATES={lb:[45,35,25,10,5,2.5],kg:[25,20,15,10,5,2.5,1.25]},BARS={lb:[45,35,25,15],kg:[20,15,10]};
-const isPlateLoaded=(x,b)=>isMachine(x)&&b==='Hammer Strength Plate Loaded';
+const isPlateLoaded=(x,b)=>isMachine(x)&&PLATE_BRANDS.includes(b);
 const barLike=x=>x.type==='wr'&&!isMachine(x)&&catOf(x)==='Barbell';
 const plateOk=(x,b)=>x.type==='wr'&&(barLike(x)||isPlateLoaded(x,b));
 const singleOk=x=>x.type==='wr'&&(isMachine(x)||catOf(x)==='Cable'||!!x.single);
@@ -510,8 +519,8 @@ function vEntry(w,e,ei){
  if(e.col)return `${wrapA}${head0}<div class="sm mut esum" data-a="ecol" data-ei="${ei}">${esc(entrySummary(x,e))}</div></div>`;
  const rowsS=getSettings(x,eb),expd=e.sx===true;
  const shown=expd?rowsS:rowsS.slice(0,2);
- const brandHdr=isMachine(x)?(x.fixed?`<span class="sm" style="flex:1;min-width:0"><b>${esc(x.brand)}</b></span>`:`<select class="bsel2" data-f="brand" data-ei="${ei}">${MBRANDS.map(b=>`<option value="${esc(b)}" ${eb===b?'selected':''}>${esc(b)}</option>`).join('')}</select>`):'<span style="flex:1"></span>';
- const sticky=`<div class="sticky"><div class="shead2"><b>${isMachine(x)?'Machine Settings':'Settings'}</b>${brandHdr}<button class="chev-btn ${expd?'up':''}" data-a="scol" data-ei="${ei}" aria-label="Show more settings">${IC.cd}</button></div>
+ const brandHdr=isMachine(x)?(x.fixed?`<span class="sm" style="flex:1;min-width:0"><b>${esc(x.brand)}</b></span>`:`<select class="bsel2" data-f="brand" data-ei="${ei}">${brandOpts(eb)}</select>`):'<span style="flex:1"></span>';
+ const sticky=`<div class="sticky"><div class="shead2"><b>${isMachine(x)?'Machine Settings':'Settings'}</b>${brandHdr}<button class="chev-btn ${expd?'up':''}" data-a="scol" data-ei="${ei}" aria-label="Show more settings">${IC.cd}</button></div>${isMachine(x)&&!x.fixed&&isArs(eb)?`<div class="shead3"><span class="sm mut">Arsenal Line</span><select class="bsel2" data-f="line" data-ei="${ei}">${lineOpts(eb)}</select></div>`:''}
   <div class="g2">${shown.map((r,i)=>settingCell(x,eb,r,i,expd)).join('')}${expd?`<button class="addc" data-a="sadd" data-id="${x.id}" data-brand="${esc(eb)}">+ Add Setting</button>`:''}</div></div>`;
  let body;
  if(x.type==='dist')body=cardioBlock(e,ei,prev);
@@ -579,7 +588,8 @@ function exForm(e){
  <label class="sm mut">Type</label><select id="xt" style="text-align:left;text-align-last:left;width:100%">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}" ${e.type===k?'selected':''}>${v.n}</option>`).join('')}</select>
  <label class="sm mut">Body Part</label><input id="xm" value="${esc(e.muscle||'')}" autocapitalize="words">
  ${e.fixed?`<p class="sm mut">Machine: ${esc(e.brand)}</p>`:`<label class="row" style="margin-top:12px"><input type="checkbox" id="xmach" data-f="machtoggle" ${e.machine?'checked':''}> <span>Machine exercise (choose machine brand)</span></label>
- <div id="xbwrap" style="display:${e.machine?'block':'none'}"><label class="sm mut">Default Machine</label><select id="xb" style="text-align:left;text-align-last:left;width:100%">${MBRANDS.map(b=>`<option value="${esc(b)}" ${brandOf(e)===b?'selected':''}>${esc(b)}</option>`).join('')}</select></div>`}
+ <div id="xbwrap" style="display:${e.machine?'block':'none'}"><label class="sm mut">Default Machine</label><select id="xb" data-f="exbrand" style="text-align:left;text-align-last:left;width:100%">${brandOpts(brandOf(e))}</select>
+ <div id="xlwrap" style="display:${isArs(brandOf(e))?'block':'none'}"><label class="sm mut">Arsenal Line</label><select id="xl" style="text-align:left;text-align-last:left;width:100%">${lineOpts(isArs(brandOf(e))?brandOf(e):ARS[0])}</select></div></div>`}
  <div class="row" style="margin-top:14px">${isNew?'':`<button class="lr" data-a="del-ex" data-id="${e.id}">Delete</button>`}<button class="grow" data-a="close">Cancel</button><button class="pri grow" data-a="save-ex" data-id="${e.id||''}">Save</button></div>`);
 }
 
@@ -888,7 +898,7 @@ function findOrMakeEx(name,type,stats,wantMachine){
  e={id:uid(),name,type:TYPES[type]?type:guessType(name),muscle:'',machine:tg==='machine'||!!wantMachine,brand:'',fixed:false};S.exercises.push(e);stats.newEx++;return e}
 function parseExLine(line){
  line=line.replace(/^\s*(?:[-*•]|\d+[.)])\s+/,'').trim();
- const U='(?:(?:reps?|sec|s|min|m)\\b)?';
+ const U='(?:(?:reps?|sec|s|min|m(?!-?\\d))\\b)?';
  let m=line.match(new RegExp('^(.+?)[\\s:|–—-]+(\\d+)\\s*[x×]\\s*([\\d]+(?:\\s*[-–]\\s*\\d+)?\\s*'+U+')(.*)$','i')),sets,reps,rest;
  if(m){sets=+m[2];reps=m[3].trim();rest=m[4]}
  else{m=line.match(new RegExp('^(.+?)[\\s:|–—-]+(\\d+)\\s*sets?\\b(?:\\s*(?:of|x|×|@)?\\s*([\\d]+(?:\\s*[-–]\\s*\\d+)?\\s*'+U+'))?(.*)$','i'));
@@ -896,9 +906,9 @@ function parseExLine(line){
  const nm=rest.match(/note:\s*(.+)$/i),note=nm?nm[1].trim():'';
  if(nm)rest=rest.slice(0,nm.index);
  const t=(rest.match(/\b(wr|bw|reps|time|dist)\b/i)||[])[1];
- const bm=rest.match(/\b(life\s?fitness|precor|matrix|hoist|hammer\s?strength\s?(?:mts|plate(?:\s?loaded)?)|hs\s?mts|hs\s?plate(?:\s?loaded)?|mts|plate\s?loaded)\b/i);
+ const bm=rest.match(/\b(arsenal(?:\s?strength)?(?:\s?(?:m-?1|reloaded|forge-?x))?|m-?1|reloaded|forge-?x|prime(?:\s?fitness)?|life\s?fitness|precor|matrix|hoist|hammer\s?strength\s?(?:mts|plate(?:\s?loaded)?)|hs\s?mts|hs\s?plate(?:\s?loaded)?|mts|plate\s?loaded)\b/i);
  let brand='';
- if(bm){const s=bm[1].toLowerCase();brand=/life/.test(s)?'Life Fitness':/precor/.test(s)?'Precor':/matrix/.test(s)?'Matrix':/hoist/.test(s)?'Hoist':/mts/.test(s)?'Hammer Strength MTS':'Hammer Strength Plate Loaded'}
+ if(bm){const s=bm[1].toLowerCase();brand=/forge/.test(s)?'Arsenal FORGE-X':/reloaded/.test(s)?'Arsenal Reloaded':/arsenal|m-?1/.test(s)?'Arsenal M-1':/prime/.test(s)?'Prime':/life/.test(s)?'Life Fitness':/precor/.test(s)?'Precor':/matrix/.test(s)?'Matrix':/hoist/.test(s)?'Hoist':/mts/.test(s)?'Hammer Strength MTS':'Hammer Strength Plate Loaded'}
  const ss=(rest.match(/\bss:\s*(\w+)/i)||[])[1]||'',drops=+((rest.match(/\bdrop:\s*(\d+)/i)||[])[1]||0),warm=+((rest.match(/\bwarm(?:up)?:\s*(\d+)/i)||[])[1]||0);
  return {name:m[1].trim().replace(/[:|]+$/,''),sets:Math.min(Math.max(sets,1),20),reps,type:t&&t.toLowerCase(),brand,note,ss,drops:Math.min(drops,6),warm:Math.min(warm,6)}}
 function importText(txt){
@@ -1048,7 +1058,7 @@ document.addEventListener('click',e=>{
   case 'edit-ex':exForm(S.exercises.find(x=>x.id===d.id));break;
   case 'save-ex':{const n=titleCase($('#xn').value.trim());if(!n){toast('Name required');break}
    const mach=$('#xmach');const o={name:n,type:$('#xt').value,muscle:titleCase($('#xm').value.trim())};
-   if(mach){o.machine=mach.checked;o.brand=$('#xb').value}
+   if(mach){o.machine=mach.checked;o.brand=$('#xb').value==='Arsenal'?$('#xl').value:$('#xb').value}
    let id=d.id;if(id)Object.assign(S.exercises.find(x=>x.id===id),o);else{id=uid();S.exercises.push({id,...o})}
    save();closeModal();
    if(pick.on){if(!pick.sel.includes(id))pick.sel.push(id);pkHead();pkList()}else renderAll();break}
@@ -1093,8 +1103,10 @@ document.addEventListener('change',e=>{
   const x=S.exercises.find(x=>x.id===t.dataset.id);if(!x)return;const i=+t.dataset.i,b=t.dataset.brand;
   if(t.value==='__other'){otherEdit={id:x.id,brand:b,i};renderSheet();const el=document.querySelector('input[data-other="1"]');if(el)el.focus();return}
   const r=getSettings(x,b)[i];if(r){r.v=t.value;save()}renderSheet()}
+ else if(f==='exbrand'){$('#xlwrap').style.display=t.value==='Arsenal'?'block':'none'}
  else if(f==='machtoggle'){$('#xbwrap').style.display=t.checked?'block':'none'}
- else if(f==='brand'){const en=S.active.entries[+t.dataset.ei],x=S.exercises.find(x=>x.id===en.ex);en.brand=t.value;if(x){x.brand=t.value;en.cs=getSettings(x,t.value).some(r=>r.v)}save();renderSheet()}
+ else if(f==='brand'){const en=S.active.entries[+t.dataset.ei],x=S.exercises.find(x=>x.id===en.ex);const nb=pickBrand(t.value);en.brand=nb;if(x){x.brand=nb;en.cs=getSettings(x,nb).some(r=>r.v)}save();renderSheet()}
+ else if(f==='line'){const en=S.active.entries[+t.dataset.ei],x=S.exercises.find(x=>x.id===en.ex);en.brand=t.value;if(x){x.brand=t.value;en.cs=getSettings(x,t.value).some(r=>r.v)}save();renderSheet()}
  else if(f==='xbody'){xf.body=t.value;renderXList()}
  else if(f==='xcat'){xf.cat=t.value;renderXList()}
  else if(f==='pbody'){pick.body=t.value;pkList()}
@@ -1144,9 +1156,9 @@ document.addEventListener('pointerup',dragEnd);document.addEventListener('pointe
 
 migrate();
 renderAll();
-try{if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js")}catch(e){}
 if(S.active)startElapsed();
 if(syncOn())sendPending();
+try{if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js")}catch(e){}
 </script>
 </body>
 </html>
