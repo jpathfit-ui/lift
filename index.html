@@ -21,8 +21,12 @@
 #done .dn-head{position:relative;text-align:center;margin-top:30px}
 #done .dn-head h2{font-size:28px;margin:0 0 6px;animation:dnup .4s ease .1s both}
 #done .dn-head p{margin:0;color:var(--mut);font-size:17px;animation:dnup .4s ease .2s both}
-.dn-bricks{position:relative;width:144px;height:74px;margin:0 auto 22px;animation:bkp .5s ease 1.4s both}
-.dn-bricks i{position:absolute;width:44px;height:22px;border-radius:5px;opacity:0;box-shadow:inset 0 2px 0 rgba(255,255,255,.38),inset 0 -2px 0 rgba(0,0,0,.2),0 3px 6px rgba(60,30,160,.25);animation:bkd .42s cubic-bezier(.3,1.5,.5,1) both;animation-delay:calc(.2s + var(--i)*.16s)}
+.dn-bricks{position:relative;width:144px;height:72px;margin:0 auto 22px;animation:bkp .5s ease 1.4s both}
+.dn-bricks i{position:absolute;width:46px;height:22px;border-radius:2px;opacity:0;background:linear-gradient(180deg,rgba(255,240,225,.24) 0,rgba(255,255,255,0) 30%,rgba(0,0,0,0) 58%,rgba(0,0,0,.26) 100%),var(--c);box-shadow:inset 0 1px 0 rgba(255,230,210,.4),inset 0 -2px 2px rgba(60,10,0,.42),inset 1px 0 0 rgba(0,0,0,.14),inset -1px 0 0 rgba(0,0,0,.2),0 0 0 1.5px #c8bfb1,0 4px 7px rgba(50,20,10,.3);animation:bkd .42s cubic-bezier(.3,1.5,.5,1) both;animation-delay:calc(.2s + var(--i)*.16s)}
+.dn-bricks i::after{content:'';position:absolute;inset:0;border-radius:inherit;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .15  0 0 0 0 .05  0 0 0 0 0  0 0 0 .75 0'/%3E%3C/filter%3E%3Crect width='64' height='64' filter='url%28%23n%29'/%3E%3C/svg%3E");mix-blend-mode:multiply;opacity:.8}
+.dn-bricks s{position:absolute;width:0;height:0;pointer-events:none;text-decoration:none}
+.dn-bricks s b{position:absolute;left:0;top:0;border-radius:50%;opacity:0;background:radial-gradient(circle,rgba(214,200,178,.8) 0,rgba(200,185,163,.5) 45%,rgba(200,185,163,0) 72%);animation:dst .75s ease-out var(--d) forwards}
+@keyframes dst{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}18%{opacity:.9}100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(var(--sc))}}
 #done .dn-card{position:relative;margin-top:30px;border:1px solid var(--line);border-radius:18px;background:var(--card);padding:14px 16px;animation:dnup .45s ease .5s both}
 #done .dn-card b.t{font-size:17px}
 #done .dn-stats{display:flex;justify-content:space-between;margin:10px 0 12px;font-weight:700}
@@ -731,7 +735,10 @@ function showDone(w,prs){
  let vol=0;w.entries.forEach(e=>{const t=ex(e.ex).type;if(t==='wr'||t==='bw')e.sets.forEach(s=>{if(valid(s))vol+=num(s.a)*num(s.b)})});
  const dateTxt=new Date(w.start).toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'});
  const rows=w.entries.map(e=>{const x=ex(e.ex),b=bestSet(x,e.sets);return `<span>${e.sets.length} × ${esc(dispName(x,entryBrand(e)))}</span><span>${b?esc(compact(x.type,b)):''}</span>`}).join('');
- const bricks=[[0,52,'#8468f5','#5b3dd8',-14],[50,52,'#8468f5','#5b3dd8',10],[100,52,'#8468f5','#5b3dd8',-8],[25,26,'#9479f7','#6a4bf0',12],[75,26,'#9479f7','#6a4bf0',-12],[50,0,'#b9a6ff','#8a6ef5',8]].map((b,i)=>`<i style="left:${b[0]}px;top:${b[1]}px;background:linear-gradient(${b[2]},${b[3]});--i:${i};--r:${b[4]}deg"></i>`).join('');
+ const BP=[[0,50],[49,50],[98,50],[24.5,25],[73.5,25],[49,0]],BC=['#b5472f','#a63d2a','#c0553a','#9d3826','#b94b33','#ad4230'],BR=[-12,9,-7,11,-10,7];
+ const dust=BP.map((b,i)=>{const dl=(.2+i*.16+.33).toFixed(2),puffs=Array.from({length:7},(_,k)=>{const sd=k%2?1:-1,w=9+Math.random()*9;return `<b style="width:${w}px;height:${w}px;--dx:${sd*(8+Math.random()*24)}px;--dy:${-(2+Math.random()*12)}px;--sc:${(1.4+Math.random()*1.2).toFixed(2)};--d:${(+dl+Math.random()*.06).toFixed(2)}s;left:${sd*(16+Math.random()*9)}px;top:${-Math.random()*4}px"></b>`}).join('');
+  return `<s style="left:${b[0]+23}px;top:${b[1]+22}px">${puffs}</s>`}).join('');
+ const bricks=dust+BP.map((b,i)=>`<i style="left:${b[0]}px;top:${b[1]}px;--c:${BC[i]};--i:${i};--r:${BR[i]}deg"></i>`).join('');
  const el=document.createElement('div');el.id='done';
  el.innerHTML=`<canvas></canvas><button class="sq dn-x" data-a="done-close" aria-label="Close">✕</button>
  <div class="dn-head"><div class="dn-bricks">${bricks}</div><h2>Congratulations!</h2><p>You completed your ${ordinal(n)} workout!</p></div>
