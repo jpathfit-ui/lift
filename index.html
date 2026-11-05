@@ -36,18 +36,18 @@
 @keyframes dnup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @keyframes bkd{0%{opacity:0;transform:translateY(-100px) rotate(var(--r))}50%{opacity:1}100%{opacity:1;transform:none}}
 @keyframes bkp{0%{transform:none}50%{transform:scale(1.07)}100%{transform:none}}
-#splash{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(250,248,245,.10);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:spfade .22s ease .58s forwards}
+#splash{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(250,248,245,.10);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:spfade .3s ease 1.85s forwards}
 #splash.go{pointer-events:none}
 #splash.skip{animation:none;opacity:0;transition:opacity .14s;pointer-events:none}
 #splash svg{width:300px;height:140px;max-width:92vw;overflow:visible;filter:drop-shadow(0 8px 16px rgba(0,0,0,.28));position:relative}
-#splash .bar{transform-box:fill-box;transform-origin:center;animation:spin .07s ease-out both}
-#splash .rat{transform-origin:150px 70px;animation:sprat .1s linear both;--k:1}
-#splash .r1{animation-delay:.15s}#splash .r2{animation-delay:.27s;--k:1.2}#splash .r3{animation-delay:.39s;--k:1.5}
-#splash .sl{animation:spslide .11s cubic-bezier(.2,.7,.3,1) both}
-#splash .ex{transform-box:fill-box;transform-origin:center;animation:spex .28s cubic-bezier(.1,.7,.3,1) .52s both}
-#splash .shaft{transform-box:fill-box;transform-origin:center;animation:spbx .28s ease-out .52s both}
+#splash .bar{transform-box:fill-box;transform-origin:center;animation:spin .18s ease-out both}
+#splash .rat{transform-origin:150px 70px;animation:sprat .2s linear both;--k:1}
+#splash .r1{animation-delay:.4s}#splash .r2{animation-delay:.95s;--k:1.2}#splash .r3{animation-delay:1.5s;--k:1.5}
+#splash .sl{animation:spslide .3s cubic-bezier(.2,.7,.3,1) both}
+#splash .ex{transform-box:fill-box;transform-origin:center;animation:spex .36s cubic-bezier(.1,.7,.3,1) 1.8s both}
+#splash .shaft{transform-box:fill-box;transform-origin:center;animation:spbx .36s ease-out 1.8s both}
 #splash .burst{position:absolute;width:300px;height:140px;max-width:92vw}
-#splash .burst i{position:absolute;opacity:0;border-radius:2px;animation:spb .3s cubic-bezier(.1,.7,.3,1) .52s forwards}
+#splash .burst i{position:absolute;opacity:0;border-radius:2px;animation:spb .4s cubic-bezier(.1,.7,.3,1) 1.8s forwards}
 @keyframes spfade{to{opacity:0;visibility:hidden}}
 @keyframes spin{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
 @keyframes spslide{from{opacity:0;transform:translateX(calc(var(--dir)*84px))}55%{opacity:1}to{opacity:1;transform:none}}
@@ -231,19 +231,19 @@ svg text{fill:var(--mut);font-size:15px}
 <linearGradient id="spP3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cbbeff"/><stop offset="1" stop-color="#9179f7"/></linearGradient></defs>
 <g class="bar"><g class="rat r1"><g class="rat r2"><g class="rat r3">
 <g class="shaft"><rect x="20" y="66.5" width="260" height="7" rx="3.5" fill="url(#spSt)"/><rect x="20" y="63.5" width="80" height="13" rx="3" fill="url(#spSt)"/><rect x="200" y="63.5" width="80" height="13" rx="3" fill="url(#spSt)"/><rect x="95" y="57" width="7" height="26" rx="2" fill="#5b6070"/><rect x="198" y="57" width="7" height="26" rx="2" fill="#5b6070"/></g>
-<g class="sl" style="--dir:-1;animation-delay:0.04s"><g class="ex" style="--dx:-70px;--dy:30px;--rot:-22deg"><rect x="82" y="22.0" width="12" height="96" rx="4" fill="url(#spP1)"/><rect x="83.5" y="26.0" width="2.2" height="88" rx="1.1" fill="#fff" opacity=".38"/></g></g>
-<g class="sl" style="--dir:1;animation-delay:0.04s"><g class="ex" style="--dx:70px;--dy:-30px;--rot:22deg"><rect x="206" y="22.0" width="12" height="96" rx="4" fill="url(#spP1)"/><rect x="207.5" y="26.0" width="2.2" height="88" rx="1.1" fill="#fff" opacity=".38"/></g></g>
-<g class="sl" style="--dir:-1;animation-delay:0.16s"><g class="ex" style="--dx:-96px;--dy:44px;--rot:-32deg"><rect x="68" y="31.0" width="12" height="78" rx="4" fill="url(#spP2)"/><rect x="69.5" y="35.0" width="2.2" height="70" rx="1.1" fill="#fff" opacity=".38"/></g></g>
-<g class="sl" style="--dir:1;animation-delay:0.16s"><g class="ex" style="--dx:96px;--dy:-44px;--rot:32deg"><rect x="220" y="31.0" width="12" height="78" rx="4" fill="url(#spP2)"/><rect x="221.5" y="35.0" width="2.2" height="70" rx="1.1" fill="#fff" opacity=".38"/></g></g>
-<g class="sl" style="--dir:-1;animation-delay:0.28s"><g class="ex" style="--dx:-122px;--dy:-58px;--rot:-42deg"><rect x="54" y="40.0" width="12" height="60" rx="4" fill="url(#spP3)"/><rect x="55.5" y="44.0" width="2.2" height="52" rx="1.1" fill="#fff" opacity=".38"/></g></g>
-<g class="sl" style="--dir:1;animation-delay:0.28s"><g class="ex" style="--dx:122px;--dy:-58px;--rot:42deg"><rect x="234" y="40.0" width="12" height="60" rx="4" fill="url(#spP3)"/><rect x="235.5" y="44.0" width="2.2" height="52" rx="1.1" fill="#fff" opacity=".38"/></g></g>
+<g class="sl" style="--dir:-1;animation-delay:0.1s"><g class="ex" style="--dx:-70px;--dy:30px;--rot:-22deg"><rect x="82" y="22.0" width="12" height="96" rx="4" fill="url(#spP1)"/><rect x="83.5" y="26.0" width="2.2" height="88" rx="1.1" fill="#fff" opacity=".38"/></g></g>
+<g class="sl" style="--dir:1;animation-delay:0.1s"><g class="ex" style="--dx:70px;--dy:-30px;--rot:22deg"><rect x="206" y="22.0" width="12" height="96" rx="4" fill="url(#spP1)"/><rect x="207.5" y="26.0" width="2.2" height="88" rx="1.1" fill="#fff" opacity=".38"/></g></g>
+<g class="sl" style="--dir:-1;animation-delay:0.65s"><g class="ex" style="--dx:-96px;--dy:44px;--rot:-32deg"><rect x="68" y="31.0" width="12" height="78" rx="4" fill="url(#spP2)"/><rect x="69.5" y="35.0" width="2.2" height="70" rx="1.1" fill="#fff" opacity=".38"/></g></g>
+<g class="sl" style="--dir:1;animation-delay:0.65s"><g class="ex" style="--dx:96px;--dy:-44px;--rot:32deg"><rect x="220" y="31.0" width="12" height="78" rx="4" fill="url(#spP2)"/><rect x="221.5" y="35.0" width="2.2" height="70" rx="1.1" fill="#fff" opacity=".38"/></g></g>
+<g class="sl" style="--dir:-1;animation-delay:1.2s"><g class="ex" style="--dx:-122px;--dy:-58px;--rot:-42deg"><rect x="54" y="40.0" width="12" height="60" rx="4" fill="url(#spP3)"/><rect x="55.5" y="44.0" width="2.2" height="52" rx="1.1" fill="#fff" opacity=".38"/></g></g>
+<g class="sl" style="--dir:1;animation-delay:1.2s"><g class="ex" style="--dx:122px;--dy:-58px;--rot:42deg"><rect x="234" y="40.0" width="12" height="60" rx="4" fill="url(#spP3)"/><rect x="235.5" y="44.0" width="2.2" height="52" rx="1.1" fill="#fff" opacity=".38"/></g></g>
 </g></g></g></g></svg><div class="burst" id="spb"></div></div>
 <script>(function(){var s=document.getElementById('splash'),b=document.getElementById('spb'),c=['#7b5cf0','#a08aff','#cbbeff','#4526c8','#ffffff'];
 for(var i=0;i<22;i++){var e=document.createElement('i'),side=i%2?1:-1,a=Math.random()*Math.PI*2,r=60+Math.random()*90,w=3+Math.random()*4;
 e.style.cssText='left:'+(150+side*(60+Math.random()*30))+'px;top:'+(55+Math.random()*30)+'px;width:'+w+'px;height:'+(w*(.5+Math.random()*.8))+'px;background:'+c[i%5]+';--dx:'+(Math.cos(a)*r)+'px;--dy:'+(Math.sin(a)*r)+'px;--rot:'+((Math.random()-.5)*540)+'deg';b.appendChild(e)}
 function done(){if(s&&s.parentNode)s.parentNode.removeChild(s);s=null}
 s.addEventListener('click',function(){s.className+=' skip';setTimeout(done,160)});
-setTimeout(function(){if(s)s.className+=' go'},520);setTimeout(done,900)})();</script>
+setTimeout(function(){if(s)s.className+=' go'},1800);setTimeout(done,2250)})();</script>
 
 <div id="app"></div>
 <div id="mini" data-a="open-wk"><div class="grab"></div><div class="mt" id="mt"></div><div class="ms" id="ms"></div></div>
