@@ -91,7 +91,7 @@ input[type=checkbox]{width:22px;height:22px;flex:none}
 select{appearance:none;-webkit-appearance:none;font-weight:700;text-align:center;text-align-last:center;padding:12px 8px;border-radius:12px;white-space:nowrap;text-overflow:ellipsis}
 /* tabs */
 #tabs{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--tab);padding:8px 4px calc(8px + env(safe-area-inset-bottom));z-index:5}
-#tabs button{flex:1;background:none;border-radius:0;padding:4px 0;color:var(--tabmut);font-size:11px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px}
+#tabs button{flex:1;min-width:0;white-space:normal;line-height:1.1;background:none;border-radius:0;padding:4px 0;color:var(--tabmut);font-size:10px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px}
 #tabs button.on{color:#fff}
 #tabs .ti{height:30px;display:flex;align-items:center}
 /* start screen */
@@ -228,6 +228,32 @@ html.lock,html.lock body{overflow:hidden;height:100%}
 .msheet h3{margin:0 0 10px;font-size:22px}
 textarea{min-height:120px;font:16px monospace}
 svg text{fill:var(--mut);font-size:15px}
+/* program builder */
+.pdl{font-size:13px;font-weight:700;color:var(--ac)}
+.pmap{display:flex;gap:6px;margin:14px 0 12px;--ptl:64px}
+.pdays{flex:none;width:12px;margin-top:calc(var(--ptl) + 8px);font-size:10px;font-weight:700;color:var(--mut)}
+.pdays div{height:18px;line-height:18px;text-align:center}
+.pscroll{flex:1;min-width:0;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+.ptl{display:flex;height:var(--ptl);width:max-content}
+.pblk{flex:none;height:var(--ptl);border-radius:12px;border:2.5px solid var(--bg);box-sizing:border-box;overflow:hidden;cursor:pointer;position:relative;transition:transform .16s ease;text-align:center}
+.pblk.sel{border-color:var(--tx)}
+.pblk.pdrg{transition:none;z-index:3;opacity:.92}
+.pgrip{display:flex;align-items:center;justify-content:center;width:100%;height:26px;padding:0;background:none;color:inherit;border-radius:0;touch-action:none;cursor:grab;opacity:.85}
+.pgrip svg{width:18px;height:18px}
+.pbn{font-size:12px;font-weight:800;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+.pbw{font-size:11px;font-weight:600;opacity:.8;white-space:nowrap}
+.pcal{margin-top:8px;display:grid;grid-template-rows:repeat(7,18px);grid-auto-flow:column;grid-auto-columns:28px;width:max-content}
+.pcal i{margin:2px 3px;border-radius:4px;background:var(--card2)}
+.pedit{border:1px solid var(--line);border-radius:18px;padding:14px;background:var(--card);margin-top:14px}
+.pstep{display:flex;align-items:center;background:var(--card2);border-radius:12px}
+.pstep button{background:none;width:40px;height:44px;padding:0;font-size:22px;color:var(--ac);font-weight:800}
+.pstep span{min-width:70px;text-align:center;font-weight:700;font-size:14px}
+.pweek{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.pday{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;padding:8px 2px;min-height:78px;border-radius:12px;background:none;border:1.5px dashed var(--line);color:var(--mut);white-space:normal;min-width:0}
+.pday.on{border:1.5px solid transparent}
+.pdn{font-size:11px;font-weight:800;opacity:.85}
+.pwn{font-size:10.5px;font-weight:700;line-height:1.15;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;max-width:100%}
+.pempty{border:1.5px dashed var(--line);border-radius:18px;padding:22px 16px;text-align:center;margin:14px 0}
 </style>
 </head>
 <body>
@@ -579,6 +605,7 @@ const IC={
  search:'<svg viewBox="0 0 24 24" width="22" height="22"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="2.4" fill="none"/><path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
  cal:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke-linecap="round"/></svg>',
  chart:'<svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><rect x="3" y="12" width="4.5" height="9" rx="1.2"/><rect x="9.8" y="6" width="4.5" height="15" rx="1.2"/><rect x="16.5" y="2.5" width="4.5" height="18.5" rx="1.2"/></svg>',
+ prog:'<svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><rect x="1.5" y="6" width="9" height="12" rx="2.2"/><rect x="12" y="6" width="5.5" height="12" rx="2.2"/><rect x="19" y="6" width="3.5" height="12" rx="1.7"/></svg>',
  grip:'<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><circle cx="9" cy="6" r="1.8"/><circle cx="15" cy="6" r="1.8"/><circle cx="9" cy="12" r="1.8"/><circle cx="15" cy="12" r="1.8"/><circle cx="9" cy="18" r="1.8"/><circle cx="15" cy="18" r="1.8"/></svg>',
  cd:'<svg viewBox="0 0 24 24" width="20" height="20"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
  timer:'<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="13.5" r="8"/><path d="M12 9.5v4l2.5 1.5M9.5 2.5h5"/></svg>'
@@ -629,7 +656,7 @@ let tab='workout',wkOpen=false,histOpen=null,statEx=null,rEdit=null;
 let pick={on:false,mode:'workout',sel:[],q:'',body:'',cat:''};
 let xf={q:'',body:'',cat:''};
 const SSC=['#a855f7','#f97316','#14b8a6','#ec4899','#eab308'];
-const TABS=[['profile',IC.person,'Profile'],['history',IC.clock,'History'],['workout',IC.plus,'Start Workout'],['exercises',IC.dumb,'Exercises'],['trends',IC.chart,'Trends']];
+const TABS=[['profile',IC.person,'Profile'],['history',IC.clock,'History'],['workout',IC.plus,'Start Workout'],['exercises',IC.dumb,'Exercises'],['program',IC.prog,'Program'],['trends',IC.chart,'Trends']];
 
 function renderTabs(){$('#tabs').innerHTML=TABS.map(t=>`<button data-tab="${t[0]}" class="${tab===t[0]?'on':''}"><span class="ti">${t[1]}</span>${t[2]}</button>`).join('')}
 function renderAll(){
@@ -639,7 +666,7 @@ function renderAll(){
  placeRest();
 }
 function renderMain(){
- $('#app').innerHTML=`<div class="wrap">${{workout:vStart,history:vHistory,exercises:vExercises,profile:vProfile,trends:vTrends}[tab]()}</div>`;
+ $('#app').innerHTML=`<div class="wrap">${{workout:vStart,history:vHistory,exercises:vExercises,profile:vProfile,trends:vTrends,program:vProgram}[tab]()}</div>`;
  if(tab==='exercises')renderXList();
 }
 function renderMini(){
@@ -1521,6 +1548,161 @@ function dragEnd(e){
  renderSheet();
 }
 document.addEventListener('pointerup',dragEnd);document.addEventListener('pointercancel',dragEnd);
+
+// ================= program builder =================
+// A program is an ordered stack of blocks. A block is a weekly pattern (Mon to Sun, each day a template or Rest) repeated for N weeks.
+const PBT={Hypertrophy:{c:'#7b5cf0',t:'#fff',w:4},Strength:{c:'#4526c8',t:'#fff',w:4},Peak:{c:'#a23fd0',t:'#fff',w:3},Endurance:{c:'#5b6fe0',t:'#fff',w:4},Deload:{c:'#cbbeff',t:'#2f1d78',w:1},Custom:{c:'#8d7bb8',t:'#fff',w:4}};
+const PU=28,PDAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],PFULL=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+let pSel='',pdrag=null;
+const progs=()=>S.programs||(S.programs=[]);
+const curProg=()=>progs().find(p=>p.id===S.progId)||progs()[0]||null;
+const curBlk=p=>p?(p.blocks.find(b=>b.id===pSel)||p.blocks[0]||null):null;
+const pTint=b=>PBT[b.type]||PBT.Custom;
+// Templates are matched by id first, then by name, because a Sheet sync rebuilds template ids
+const rtOf=c=>c?(S.routines.find(r=>r.id===c.r)||S.routines.find(r=>r.name===c.n)||null):null;
+const dayName=c=>{const r=rtOf(c);return r?r.name:(c?c.n:'')};
+const bWorkouts=b=>b.days.filter(Boolean).length;
+const pWeeks=p=>p.blocks.reduce((n,b)=>n+b.weeks,0);
+const newBlock=(type,weeks,name)=>({id:uid(),name:name||type,type,weeks:weeks||PBT[type].w,days:Array(7).fill(null)});
+function pRender(toEnd){const sc=$('.pscroll'),x=sc?sc.scrollLeft:0;renderAll();const n=$('.pscroll');if(n)n.scrollLeft=toEnd?n.scrollWidth:x}
+function pStarts(order){let w=1;const m={};order.forEach(b=>{m[b.id]=w;w+=b.weeks});return m}
+function pWkLabel(s,n){return n===1?'Wk '+s:'Wk '+s+'–'+(s+n-1)}
+function pCalCells(order){
+ let h='';
+ order.forEach(b=>{const t=pTint(b);for(let w=0;w<b.weeks;w++)for(let d=0;d<7;d++)h+=b.days[d]?`<i style="background:${t.c}"></i>`:'<i></i>'});
+ return h;
+}
+function pMapHTML(p){
+ const st=pStarts(p.blocks);
+ const tl=p.blocks.map((b,i)=>{const t=pTint(b),w=b.weeks*PU;
+  return `<div class="pblk${b.id===pSel?' sel':''}" data-pa="sel" data-id="${b.id}" style="width:${w}px;background:${t.c};color:${t.t}"><button class="pgrip" data-bdrag="${i}" aria-label="Drag To Reorder">${IC.grip}</button>${w>=56?`<div class="pbn">${esc(b.name)}</div><div class="pbw">${pWkLabel(st[b.id],b.weeks)}</div>`:''}</div>`}).join('');
+ return `<div class="pmap"><div class="pdays">${PDAYS.map(d=>`<div>${d[0]}</div>`).join('')}</div><div class="pscroll"><div class="ptl">${tl}</div><div class="pcal">${pCalCells(p.blocks)}</div></div></div>`;
+}
+function pEditHTML(p,b){
+ const i=p.blocks.indexOf(b),s=pStarts(p.blocks)[b.id],t=pTint(b),n=bWorkouts(b);
+ return `<div class="pedit">
+ <div class="pdl">Block ${i+1} of ${p.blocks.length} · ${pWkLabel(s,b.weeks)}</div>
+ <input class="wtitle" data-pi="bname" value="${esc(b.name)}" maxlength="40" aria-label="Block Name" style="margin-top:2px;width:100%">
+ <div class="row" style="margin:8px 0 4px"><select data-pi="btype" class="grow" aria-label="Block Type">${Object.keys(PBT).map(k=>`<option ${b.type===k?'selected':''}>${k}</option>`).join('')}</select>
+ <div class="pstep"><button data-pa="wk-" aria-label="Fewer Weeks">−</button><span>${b.weeks} ${b.weeks===1?'Week':'Weeks'}</span><button data-pa="wk+" aria-label="More Weeks">+</button></div></div>
+ <div class="h3" style="margin:16px 0 8px">Weekly Pattern</div>
+ <div class="pweek">${b.days.map((c,d)=>{const nm=dayName(c);return `<button class="pday${c?' on':''}" data-pa="day" data-d="${d}" style="${c?`background:${t.c};color:${t.t}`:''}"><span class="pdn">${PDAYS[d]}</span><span class="pwn">${nm?esc(nm):'Rest'}</span></button>`}).join('')}</div>
+ <div class="mut sm" style="margin:10px 0 14px">${n} ${n===1?'Workout':'Workouts'} Per Week · ${n*b.weeks} In This Block</div>
+ <div class="row"><button class="lb grow" data-pa="dup">Duplicate Block</button><button class="lr grow" data-pa="del">Delete Block</button></div></div>`;
+}
+function vProgram(){
+ const p=curProg();
+ if(!p)return `<h1>Program</h1><p class="mut">Plan your training in blocks, like four weeks of hypertrophy then a deload, and drag the blocks into order.</p><button class="pri big" data-pa="np">Create A Program</button>`;
+ const b=curBlk(p);if(b)pSel=b.id;
+ const wk=pWeeks(p);
+ return `<div class="row sp" style="margin-top:14px"><div style="min-width:0"><div class="pdl">${wk} ${wk===1?'Week':'Weeks'} · ${p.blocks.length} ${p.blocks.length===1?'Block':'Blocks'}</div><h2 style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.name)}</h2></div><button class="dots" data-pa="pmenu" aria-label="Program Options">···</button></div>
+ ${p.blocks.length?pMapHTML(p):`<div class="pempty"><div style="font-weight:700;margin-bottom:4px">No Blocks Yet</div><div class="mut sm">Add a block to start building the map.</div></div>`}
+ <button class="lb big full" data-pa="add">+ Add Block</button>
+ ${b?pEditHTML(p,b):''}`;
+}
+// ---- actions
+function pAddModal(){
+ modal(`<h3>Add Block</h3>
+ <div class="mut sm" style="margin-bottom:4px">Type</div><select id="pm-type" data-pi="mtype">${Object.keys(PBT).map(k=>`<option>${k}</option>`).join('')}</select>
+ <div class="mut sm" style="margin:12px 0 4px">Name</div><input id="pm-name" placeholder="Hypertrophy" maxlength="40">
+ <div class="mut sm" style="margin:12px 0 4px">Weeks</div><input id="pm-wk" type="number" inputmode="numeric" min="1" max="52" value="${PBT.Hypertrophy.w}">
+ <div class="row" style="margin-top:16px"><button class="grow" data-a="close">Cancel</button><button class="pri grow" data-pa="add-yes">Add Block</button></div>`);
+}
+function pNewModal(){
+ modal(`<h3>New Program</h3><div class="mut sm" style="margin-bottom:4px">Name</div><input id="pm-name" placeholder="My Program" maxlength="40">
+ <div class="row" style="margin-top:16px"><button class="grow" data-a="close">Cancel</button><button class="pri grow" data-pa="np-yes">Create</button></div>`);
+}
+function pMenuModal(){
+ const p=curProg(),ps=progs();
+ modal(`<h3>Program Options</h3><div class="mut sm" style="margin-bottom:4px">Name</div><input id="pm-name" value="${esc(p.name)}" maxlength="40">
+ <button class="pri big full" style="margin-top:10px" data-pa="pren">Save Name</button>
+ ${ps.length>1?`<div class="h3">Switch Program</div>${ps.map(x=>`<div class="xrow${x.id===p.id?' sel':''}" data-pa="pswitch" data-id="${x.id}"><div class="n">${esc(x.name)}</div><div class="r">${pWeeks(x)} Wks</div></div>`).join('')}`:''}
+ <button class="lb big full" style="margin-top:14px" data-pa="np">+ New Program</button>
+ <button class="lr big full" style="margin-top:10px" data-pa="pdel">Delete Program</button>`);
+}
+function pDayModal(d){
+ const p=curProg(),b=curBlk(p),cur=b.days[d]?rtOf(b.days[d]):null;
+ modal(`<h3>${PFULL[d]}</h3>
+ <div class="xrow${!b.days[d]?' sel':''}" data-pa="setday" data-d="${d}" data-id=""><div><div class="n">Rest</div></div></div>
+ ${S.routines.length?S.routines.map(r=>`<div class="xrow${cur&&cur.id===r.id?' sel':''}" data-pa="setday" data-d="${d}" data-id="${r.id}"><div style="min-width:0"><div class="n">${esc(r.name)}</div><div class="m">${tplSummary(r)}</div></div></div>`).join(''):'<p class="mut">No templates yet. Create one on the Start Workout tab, then assign it here.</p>'}
+ <button class="big full" style="margin-top:14px" data-a="close">Cancel</button>`);
+}
+document.addEventListener('click',e=>{
+ const el=e.target.closest('[data-pa]');if(!el)return;
+ const a=el.dataset.pa,d=el.dataset,p=curProg(),b=curBlk(p);
+ switch(a){
+  case 'sel':if(pSel!==d.id){pSel=d.id;pRender()}break;
+  case 'wk-':if(b&&b.weeks>1){b.weeks--;save();pRender()}break;
+  case 'wk+':if(b&&b.weeks<52){b.weeks++;save();pRender()}break;
+  case 'day':pDayModal(+d.d);break;
+  case 'setday':{const r=d.id?S.routines.find(r=>r.id===d.id):null;b.days[+d.d]=r?{r:r.id,n:r.name}:null;save();closeModal();pRender();break}
+  case 'add':pAddModal();break;
+  case 'add-yes':{
+   const type=$('#pm-type').value,wk=Math.max(1,Math.min(52,parseInt($('#pm-wk').value,10)||PBT[type].w)),nm=titleCase($('#pm-name').value.trim()||type);
+   const nb=newBlock(type,wk,nm);p.blocks.push(nb);pSel=nb.id;save();closeModal();pRender(true);break}
+  case 'dup':{const i=p.blocks.indexOf(b),c={...b,id:uid(),name:titleCase((b.name+' Copy').slice(0,40)),days:b.days.map(x=>x?{...x}:null)};p.blocks.splice(i+1,0,c);pSel=c.id;save();pRender();toast('Block Duplicated');break}
+  case 'del':modal(`<h3>Delete Block?</h3><p class="mut">“${esc(b.name)}” will be removed from this program. Your templates are not affected.</p><button class="lr big full" data-pa="del-yes">Delete Block</button><button class="big full" style="margin-top:10px" data-a="close">Cancel</button>`);break;
+  case 'del-yes':{const i=p.blocks.indexOf(b);p.blocks.splice(i,1);pSel=(p.blocks[Math.min(i,p.blocks.length-1)]||{}).id||'';save();closeModal();pRender();toast('Block Deleted');break}
+  case 'np':pNewModal();break;
+  case 'np-yes':{const np={id:uid(),name:titleCase($('#pm-name').value.trim()||'My Program'),blocks:[]};progs().push(np);S.progId=np.id;pSel='';save();closeModal();pRender();break}
+  case 'pmenu':pMenuModal();break;
+  case 'pren':{p.name=titleCase($('#pm-name').value.trim()||p.name);save();closeModal();pRender();break}
+  case 'pswitch':S.progId=d.id;pSel='';save();closeModal();pRender();break;
+  case 'pdel':modal(`<h3>Delete Program?</h3><p class="mut">“${esc(p.name)}” and all of its blocks will be removed. Your templates are not affected.</p><button class="lr big full" data-pa="pdel-yes">Delete Program</button><button class="big full" style="margin-top:10px" data-a="close">Cancel</button>`);break;
+  case 'pdel-yes':S.programs=progs().filter(x=>x.id!==p.id);S.progId=(S.programs[0]||{}).id||'';pSel='';save();closeModal();pRender();toast('Program Deleted');break;
+ }
+});
+document.addEventListener('change',e=>{
+ const t=e.target.closest('[data-pi]');if(!t)return;
+ const k=t.dataset.pi,p=curProg(),b=curBlk(p);
+ if(k==='mtype'){const w=$('#pm-wk');if(w)w.value=PBT[t.value].w;const n=$('#pm-name');if(n)n.placeholder=t.value}
+ if(k==='bname'&&b){b.name=titleCase(t.value.trim()||b.type);save();pRender()}
+ if(k==='btype'&&b){if(b.name===b.type)b.name=t.value;b.type=t.value;save();pRender()}
+});
+// ---- drag blocks sideways to reorder; the calendar strip and week labels update live
+document.addEventListener('pointerdown',e=>{
+ const h=e.target.closest('[data-bdrag]');if(!h)return;
+ e.preventDefault();
+ const sc=$('.pscroll'),cards=[...sc.querySelectorAll('.pblk')],idx=+h.dataset.bdrag,p=curProg();
+ pdrag={idx,to:idx,sc,cards,p,rects:cards.map(c=>{const r=c.getBoundingClientRect();return {l:r.left,w:r.width}}),x0:e.clientX,s0:sc.scrollLeft,x:e.clientX,id:e.pointerId,raf:0};
+ cards[idx].classList.add('pdrg');
+ try{h.setPointerCapture(e.pointerId)}catch(_){}
+});
+function pDragApply(){
+ const d=pdrag;if(!d)return;
+ const dx=(d.x-d.x0)+(d.sc.scrollLeft-d.s0),me=d.rects[d.idx],ctr=me.l+me.w/2+dx;
+ let to=d.idx;
+ d.rects.forEach((r,i)=>{if(i===d.idx)return;const mid=r.l+r.w/2;if(i>d.idx&&ctr>mid)to=Math.max(to,i);if(i<d.idx&&ctr<mid)to=Math.min(to,i)});
+ d.cards.forEach((c,i)=>{
+  if(i===d.idx){c.style.transform=`translateX(${dx}px)`;return}
+  let sh=0;if(d.idx<to&&i>d.idx&&i<=to)sh=-me.w;if(d.idx>to&&i<d.idx&&i>=to)sh=me.w;
+  c.style.transform=sh?`translateX(${sh}px)`:'';
+ });
+ if(to!==d.to){
+  d.to=to;
+  const order=d.p.blocks.slice();const [m]=order.splice(d.idx,1);order.splice(to,0,m);
+  const st=pStarts(order);
+  d.cards.forEach((c,i)=>{const w=c.querySelector('.pbw');if(w){const b=d.p.blocks[i];w.textContent=pWkLabel(st[b.id],b.weeks)}});
+  const cal=$('.pcal');if(cal)cal.innerHTML=pCalCells(order);
+  try{navigator.vibrate&&navigator.vibrate(8)}catch(_){}
+ }
+}
+function pDragScroll(){
+ const d=pdrag;if(!d)return;
+ const r=d.sc.getBoundingClientRect();
+ if(d.x<r.left+44)d.sc.scrollLeft-=8;else if(d.x>r.right-44)d.sc.scrollLeft+=8;
+ pDragApply();d.raf=requestAnimationFrame(pDragScroll);
+}
+document.addEventListener('pointermove',e=>{if(!pdrag||e.pointerId!==pdrag.id)return;e.preventDefault();pdrag.x=e.clientX;pDragApply();if(!pdrag.raf)pdrag.raf=requestAnimationFrame(pDragScroll)},{passive:false});
+function pDragEnd(e){
+ if(!pdrag||(e&&e.pointerId!==pdrag.id))return;
+ cancelAnimationFrame(pdrag.raf);
+ const {idx,to,p}=pdrag;pdrag=null;
+ const [m]=p.blocks.splice(idx,1);p.blocks.splice(to,0,m);
+ pSel=m.id;if(to!==idx)save();
+ pRender();
+}
+document.addEventListener('pointerup',pDragEnd);document.addEventListener('pointercancel',pDragEnd);
 
 migrate();
 renderAll();
