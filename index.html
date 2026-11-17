@@ -139,6 +139,7 @@ html.lock,html.lock body{overflow:hidden;height:100%}
 .setrow{border-radius:12px;padding:3px 0}
 .setrow.done{background:#2ecc7126}
 .setrow input{text-align:center;font-weight:700;font-size:16px;padding:11px 2px}
+.setrow input.rir{background:var(--acbg);color:var(--ac)}
 .sn{font-weight:800;font-size:16px;background:none;padding:10px 0;color:var(--tx)}
 .sn.W{color:#f0a020}.sn.D{color:#9b59ff}.sn.F{color:var(--bad)}
 .prev{background:none;color:var(--mut);font-size:14px;padding:8px 0;font-weight:600}
@@ -785,7 +786,10 @@ function closeDone(){if(snowStop){snowStop();snowStop=null}const el=document.get
 
 // ================= workout sheet =================
 function ssIndex(w,g){const gs=[];w.entries.forEach(e=>{if(e.ss&&!gs.includes(e.ss))gs.push(e.ss)});return gs.indexOf(g)}
-function cols(t){return TYPES[t].a?'38px 1fr 1fr 1fr 44px':'38px 1fr 1fr 44px'}
+// RIR (reps in reserve): an optional per-set column for weight and rep based exercises, switched in Settings
+const rirOn=()=>S.settings.rir!==false;
+const rirFor=t=>rirOn()&&t!=='time'&&t!=='dist';
+function cols(t){return (TYPES[t].a?'38px 1fr 1fr 1fr':'38px 1fr 1fr')+(rirFor(t)?' 46px':'')+' 44px'}
 const SV_NUM=['1','2','3','4','5','6','7','8','9','10'],SV_LET=['A','B','C','D','E'];
 let otherEdit=null;
 function openSettingRename(id,b,i,isNew){
@@ -906,7 +910,7 @@ function vEntry(w,e,ei){
  else{
   const pm=!!x.pm&&plateOk(x,eb);
   let n=0;
-  const hd=`<div class="sethead" style="grid-template-columns:${cols(x.type)}"><span>SET</span><span>PREVIOUS</span>${T.a?`<span>${(T.a==='WEIGHT'||T.a==='+WEIGHT')?T.a+' ('+unit().toUpperCase()+')':T.a}</span>`:''}<span>${T.b}</span><span></span></div>`;
+  const hd=`<div class="sethead" style="grid-template-columns:${cols(x.type)}"><span>SET</span><span>PREVIOUS</span>${T.a?`<span>${(T.a==='WEIGHT'||T.a==='+WEIGHT')?T.a+' ('+unit().toUpperCase()+')':T.a}</span>`:''}<span>${T.b}</span>${rirFor(x.type)?'<span>RIR</span>':''}<span></span></div>`;
   const rows=e.sets.map((s,si)=>{
    if(!s.t)n++;const lab=s.t||(n+(x.single&&s.side?s.side:'')),p=prev[si];
    const here=pm&&trayAt&&trayAt.ei===ei&&trayAt.si===si;
@@ -916,6 +920,7 @@ function vEntry(w,e,ei){
    <button class="prev" data-a="prevfill" data-ei="${ei}" data-si="${si}">${p?esc(compact(x.type,p)):'–'}</button>
    ${wcell}
    <input type="number" inputmode="decimal" data-f="set" data-ei="${ei}" data-si="${si}" data-k="b" value="${esc(s.b)}">
+   ${rirFor(x.type)?`<input type="number" inputmode="numeric" class="rir" placeholder="–" aria-label="Reps In Reserve" data-f="set" data-ei="${ei}" data-si="${si}" data-k="r" value="${esc(s.r||'')}">`:''}
    <button class="chk ${s.done?'on':''}" data-a="done" data-ei="${ei}" data-si="${si}">${IC.chk}</button></div>`}).join('');
   body=`${hd}${rows}<button class="addset" data-a="add-set" data-ei="${ei}">+ Add Set</button>`;
  }
@@ -1005,7 +1010,7 @@ function vHistory(){
  return `<h1>History</h1>${ws.length?ws.map(w=>{
   const open=histOpen===w.id;
   return `<div class="hcard"><div data-a="hist-toggle" data-id="${w.id}" style="cursor:pointer"><div style="font-size:18px;font-weight:800">${esc(w.name)}</div><div class="mut">${fmtD(w.start)} · ${fmtT((w.end-w.start)/1000)}${w.tpl?` · ${esc(w.tpl)}`:''}${syncOn()?(w.synced?' · In Sheet':' · Not Sent'):''}</div></div>
-  ${open?`<div style="margin-top:10px">${w.entries.map(e=>{const x=ex(e.ex);return `<div style="margin:10px 0"><b>${esc(x.type==='dist'?x.name:pretty(x.name,entryBrand(e)))}</b>${e.sets.map((s,i)=>`<div class="mut sm">${s.t||i+1}. ${setLabel(x.type,s)}</div>`).join('')}</div>`}).join('')}
+  ${open?`<div style="margin-top:10px">${w.entries.map(e=>{const x=ex(e.ex);return `<div style="margin:10px 0"><b>${esc(x.type==='dist'?x.name:pretty(x.name,entryBrand(e)))}</b>${e.sets.map((s,i)=>`<div class="mut sm">${s.t||i+1}. ${setLabel(x.type,s)}${s.r!==undefined&&s.r!==''?' · '+esc(s.r)+' RIR':''}</div>`).join('')}</div>`}).join('')}
   <div class="row" style="margin-top:12px"><button class="lb grow" data-a="repeat" data-id="${w.id}">Repeat</button><button class="grow" data-a="rename-w" data-id="${w.id}">Rename</button><button class="lr" data-a="del-workout" data-id="${w.id}">Delete</button></div></div>`
   :`<div style="margin-top:8px">${w.entries.map(e=>{const x=ex(e.ex),b=bestSet(x,e.sets);return `<div class="row sp sm" style="padding:2px 0"><span>${e.sets.length} × ${esc(x.type==='dist'?x.name:pretty(x.name,entryBrand(e)))}</span><span class="mut">${x.type==='dist'?esc(cardioLabel(e,e.sets[0])):(b?esc(compact(x.type,b)):'')}</span></div>`}).join('')}</div>`}</div>`}).join(''):'<p class="mut">Finished workouts show up here.</p>'}`;
 }
@@ -1027,7 +1032,8 @@ function vProfile(){
  <div class="h3">Settings</div>
  <div class="card"><div class="row sp"><span>Units</span><div class="row"><button data-a="unit" data-v="lb" class="${unit()==='lb'?'pri':''}">Lb</button><button data-a="unit" data-v="kg" class="${unit()==='kg'?'pri':''}">Kg</button></div></div>
  <div class="row sp" style="margin-top:12px"><span>Appearance</span><div class="row"><button data-a="theme" data-v="light" class="${S.settings.theme==='light'?'pri':''}">Light</button><button data-a="theme" data-v="dark" class="${S.settings.theme==='dark'?'pri':''}">Dark</button></div></div>
- <div class="row sp" style="margin-top:12px"><span>Default Rest (Sec)</span><input type="number" inputmode="numeric" style="width:90px" value="${S.settings.rest}" data-f="restdef"></div></div>
+ <div class="row sp" style="margin-top:12px"><span>Default Rest (Sec)</span><input type="number" inputmode="numeric" style="width:90px" value="${S.settings.rest}" data-f="restdef"></div>
+ <div class="row sp" style="margin-top:12px"><span>Track RIR</span><div class="row"><button data-a="rir" data-v="on" class="${rirOn()?'pri':''}">On</button><button data-a="rir" data-v="off" class="${rirOn()?'':'pri'}">Off</button></div></div></div>
  <div class="h3">Backup</div><div class="card"><p class="sm mut" style="margin-top:0">Data lives on this device. Your Sheet keeps a copy of every finished workout.</p>
  <div class="row"><button class="grow" data-a="export">Export</button><button class="grow" data-a="import">Import</button></div></div>`;
 }
@@ -1068,7 +1074,7 @@ async function guard(fn){
 function workoutPayload(w){
  const d=new Date(w.start),p=n=>String(n).padStart(2,'0');
  return {id:w.id,name:w.name,tpl:w.tpl||'',date:w.date||`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`,time:w.time||`${p(d.getHours())}:${p(d.getMinutes())}`,start:w.start,end:w.end,unit:unit(),
-  entries:w.entries.map(e=>{const x=ex(e.ex),b=entryBrand(e);return {ex:x.name,kind:x.type,brand:b==='Any'?'':b,ss:e.ss||'',metric:x.type==='dist'?CMET_LONG[e.metric||'km']:'',sets:e.sets.map(s=>({t:s.t||'',a:s.a,b:s.b,side:s.side||''}))}})};
+  entries:w.entries.map(e=>{const x=ex(e.ex),b=entryBrand(e);return {ex:x.name,kind:x.type,brand:b==='Any'?'':b,ss:e.ss||'',metric:x.type==='dist'?CMET_LONG[e.metric||'km']:'',sets:e.sets.map(s=>({t:s.t||'',a:s.a,b:s.b,side:s.side||'',rir:s.r||''}))}})};
 }
 function settingsPayload(w){
  const seen={},out=[];
@@ -1468,6 +1474,7 @@ document.addEventListener('click',e=>{
   case 'sync-pending':guard(()=>sendPending(true));break;
   case 'unit':S.settings.unit=d.v;save();renderAll();break;
   case 'theme':S.settings.theme=d.v;save();renderAll();break;
+  case 'rir':S.settings.rir=d.v==='on';save();renderAll();break;
   case 'export':doExport();break;
   case 'import':doImport();break;
   case 'import-routines':importForm();break;
