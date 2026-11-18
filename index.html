@@ -718,8 +718,8 @@ function vStart(){
 }
 function tplPreview(id){
  const r=S.routines.find(r=>r.id===id);if(!r)return;
- modal(`<h3>${esc(r.name)}</h3>${tplMetaHTML(r)}
- ${r.items.map(i=>{const x=ex(i.ex);return `<div class="row sp" style="padding:8px 0;border-bottom:1px solid var(--line)"><span style="font-weight:600">${esc(x.name)}${i.ss?' <span class="pill">Superset</span>':''}</span><span class="mut sm">${(i.warm?i.warm+' warm-up + ':'')+i.sets+' sets'+(i.drops?' + '+i.drops+' drop':'')}${i.reps?' · '+esc(i.reps):''}</span></div>`}).join('')}
+ modal(`${tplTitleHTML(r)}${tplMetaHTML(r)}
+ ${r.items.map(i=>{const x=ex(i.ex);return `<div class="row sp" style="padding:8px 0;border-bottom:1px solid var(--line)"><span style="min-width:0">${x.muscle?`<span class="tsub" style="display:block">${esc(x.muscle)}</span>`:''}<span style="font-weight:600">${esc(x.name)}${i.ss?' <span class="pill">Superset</span>':''}</span></span><span class="mut sm">${(i.warm?i.warm+' warm-up + ':'')+i.sets+' sets'+(i.drops?' + '+i.drops+' drop':'')}${i.reps?' · '+esc(i.reps):''}</span></div>`}).join('')}
  <button class="pri big" style="margin-top:14px" data-a="tpl-start" data-id="${r.id}">Start Workout</button>
   <button class="lb big full" style="margin-top:10px" data-ta="tags" data-id="${r.id}">Edit Tags</button>
  <div class="row" style="margin-top:10px"><button class="lb grow" data-a="edit-routine" data-id="${r.id}">Edit</button><button class="lr grow" data-a="tpl-del" data-id="${r.id}">Delete</button></div>`);
@@ -1766,7 +1766,7 @@ function tplCard(r){
  const p=tplParts(r.name),ms=tplVis(r),sets=r.items.reduce((n,i)=>n+(i.sets||0),0),bt=r.block&&PBT[r.block];
  const top=ms.slice(0,3),rest=Math.max(0,100-top.reduce((n,x)=>n+x.p,0));
  const bar=top.length?`<div class="tbar" role="img" aria-label="Muscle split">${top.map((x,i)=>`<span class="bs${i}" style="width:${x.p}%"></span>`).join('')}${rest?`<span class="bs3" style="width:${rest}%"></span>`:''}</div><div class="tleg">${top.slice(0,2).map((x,i)=>`<div><i class="bs${i}"></i>${esc(x.m)} ${x.p}%</div>`).join('')}</div>`:`<div class="tl">${tplSummary(r)}</div>`;
- return `<div class="tcard" data-a="tpl" data-id="${r.id}"><div class="tblk">${bt?`<i style="background:${bt.c}"></i>${esc(r.block)}`:''}</div>${p.sub?`<div class="tsub">${esc(p.sub)}</div>`:''}<div class="tn">${esc(p.main)}</div>${bar}<div class="tstat">${r.items.length} Ex · ${sets} Sets · ${tplLast(r)}</div></div>`;
+ return `<div class="tcard" data-a="tpl" data-id="${r.id}"><div class="tblk">${bt?`<i style="background:${bt.c}"></i>${esc(r.block)}`:''}</div>${p.sub?`<div class="tsub">${esc(p.sub)}</div>`:''}<div class="tn">${esc(p.main)}</div>${bar}<div class="tstat">${r.items.length} Ex · ${sets} ${sets===1?'Set':'Sets'} · ${tplLast(r)}</div></div>`;
 }
 function tplMatch(r){
  const f=tplF,ms=tplMuscles(r).map(x=>x.m);
@@ -1803,9 +1803,10 @@ function tplRefresh(){
 document.addEventListener('input',e=>{const t=e.target.closest('[data-tf]');if(!t)return;tplF[t.dataset.tf]=t.value;tplRefresh()});
 document.addEventListener('change',e=>{const t=e.target.closest('[data-tf]');if(!t)return;tplF[t.dataset.tf]=t.value;tplRefresh()});
 // ---- tag editor
+function tplTitleHTML(r){const p=tplParts(r.name);return `${p.sub?`<div class="pdl">${esc(p.sub)}</div>`:''}<h3 style="margin-top:0">${esc(p.main)}</h3>`}
 function tplMetaHTML(r){
- const ms=tplVis(r).slice(0,5),bt=r.block&&PBT[r.block];
- const chips=[...(bt?[`<span class="tchip" style="background:${bt.c};color:${bt.t}">${esc(r.block)}</span>`]:[]),...ms.map(x=>`<span class="tchip soft">${esc(x.m)}</span>`),...(r.tags||[]).map(t=>`<span class="tchip gray">${esc(t)}</span>`)];
+ const bt=r.block&&PBT[r.block];
+ const chips=[...(bt?[`<span class="tchip" style="background:${bt.c};color:${bt.t}">${esc(r.block)}</span>`]:[]),...(r.tags||[]).map(t=>`<span class="tchip gray">${esc(t)}</span>`)];
  return chips.length?`<div class="tchips">${chips.join('')}</div>`:'';
 }
 function tagModal(){
