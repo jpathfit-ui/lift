@@ -1969,6 +1969,7 @@ function genModal(){
  <div class="sm mut" style="margin-top:4px">On asks the AI to pick from your own exercises. Long prompts may need Copy instead of the buttons.</div>
  <details style="margin-top:14px"><summary style="font-weight:700;color:var(--ac);padding:8px 0">Preview Prompt</summary><textarea id="g-prompt" class="pastebox" style="min-height:220px;font-size:13px"></textarea></details>
  <div class="h3" style="margin-top:14px">Send Prompt To</div>
+ <div class="sm mut" style="margin-top:4px">Tapping A Button Copies The Prompt First. If The App Opens Empty, Paste It Into The Chat.</div>
  <div class="gsend" id="g-send"><a class="lb big" data-g="link" data-k="claude" target="_blank" rel="noopener">Claude</a><a class="lb big" data-g="link" data-k="chatgpt" target="_blank" rel="noopener">ChatGPT</a><a class="lb big" data-g="link" data-k="google" target="_blank" rel="noopener">Google</a></div>
  <button class="big full" style="margin-top:8px" data-g="copy">Copy Prompt</button>
  <button class="pri big full" style="margin-top:8px" data-g="paste">Paste AI Reply</button>
@@ -2042,8 +2043,13 @@ function genRefresh(){
  const sd=$('#g-send');if(sd)sd.style.opacity=t?1:.4,sd.style.pointerEvents=t?'':'none';
 }
 function genCopy(txt){
- try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).catch(()=>{});return}}catch(_){}
- const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(_){}ta.remove();
+ let ok=false;
+ const ta=document.createElement('textarea');ta.value=txt;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;top:0;left:0;opacity:0;font-size:16px';
+ document.body.appendChild(ta);ta.focus();ta.select();ta.setSelectionRange(0,txt.length);
+ try{ok=document.execCommand('copy')}catch(_){}
+ ta.remove();
+ if(!ok){try{navigator.clipboard.writeText(txt);ok=true}catch(_){}}
+ return ok;
 }
 function genPasteModal(){
  modal(`<div class="pdl">Paste AI Reply</div><h3 style="margin-top:0">Create The Workouts</h3>
@@ -2056,8 +2062,8 @@ document.addEventListener('click',e=>{
  const k=el.dataset.g,v=el.dataset.v;
  if(k==='open'){genOpen();return}
  if(!genF)return;
- if(k==='link'){genCopy($('#g-prompt').value);toast('Prompt Copied');el.href=genUrl(el.dataset.k,$('#g-prompt').value);return}
- if(k==='copy'){genCopy($('#g-prompt').value);toast('Prompt Copied');return}
+ if(k==='link'){e.preventDefault();const t=$('#g-prompt').value,u=genUrl(el.dataset.k,t);toast(genCopy(t)?'Prompt Copied – Paste It In The Chat':'Copy Failed – Use Copy Prompt');setTimeout(()=>{window.open(u,'_blank')},900);return}
+ if(k==='copy'){toast(genCopy($('#g-prompt').value)?'Prompt Copied':'Copy Failed – Open Preview And Copy By Hand');return}
  if(k==='paste'){genSave();genPasteModal();return}
  if(k==='back'){genModal();return}
  if(k==='apply'){
