@@ -228,6 +228,8 @@ html.lock,html.lock body{overflow:hidden;height:100%}
 .msheet{background:var(--bg);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 16px calc(24px + env(safe-area-inset-bottom))}
 .msheet h3{margin:0 0 10px;font-size:22px}
 textarea{min-height:120px;font:16px monospace}
+textarea.pastebox{min-height:150px;border:1.5px dashed var(--ac);background:var(--acbg);color:var(--tx)}
+textarea.pastebox::placeholder{color:var(--ac);opacity:.7}
 svg text{fill:var(--mut);font-size:15px}
 /* program builder */
 .pdl{font-size:13px;font-weight:700;color:var(--ac)}
@@ -596,7 +598,7 @@ const $=s=>document.querySelector(s);
 const fmtT=s=>{s=Math.max(0,Math.round(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),r=s%60;return h?`${h}:${String(m).padStart(2,'0')}:${String(r).padStart(2,'0')}`:`${m}:${String(r).padStart(2,'0')}`};
 const fmtD=t=>new Date(t).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
 const num=v=>{const n=parseFloat(v);return isNaN(n)?0:n};
-function toast(m){const d=document.createElement('div');d.textContent=m;d.style.cssText='position:fixed;top:calc(12px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);background:#000d;color:#fff;padding:9px 16px;border-radius:20px;z-index:40;font-size:14px;max-width:90%;text-align:center';document.body.appendChild(d);setTimeout(()=>d.remove(),Math.max(2400,m.length*65))}
+function toast(m){const d=document.createElement('div');d.textContent=m;d.style.cssText='position:fixed;top:calc(12px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);background:#3a1fa8;color:#fff;border:1px solid #ffffff40;box-shadow:0 6px 20px #00000059;font-weight:600;padding:10px 18px;border-radius:20px;z-index:40;font-size:14px;max-width:90%;text-align:center';document.body.appendChild(d);setTimeout(()=>d.remove(),Math.max(2400,m.length*65))}
 const IC={
  person:'<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><circle cx="12" cy="7.5" r="4.2"/><path d="M3.8 21c0-4.6 3.7-7.4 8.2-7.4s8.2 2.8 8.2 7.4z"/></svg>',
  clock:'<svg viewBox="0 0 24 24" width="26" height="26"><circle cx="12" cy="12" r="10.5" fill="currentColor"/><path d="M12 6.5V12l3.8 2.3" stroke="#272d37" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -1318,7 +1320,7 @@ function importText(txt){
 function importForm(){
  modal(`<h3>Import Templates</h3>
  <p class="sm mut" style="margin-top:0">Paste a workout. One template per block, separated by a blank line: a title line, then one exercise per line.</p>
- <textarea id="ta" placeholder="Push Day&#10;Bench Press (Barbell) - 4x6-8&#10;Chest Press (Machine) - 3x10 Precor&#10;Plank - 3x45s Time"></textarea>
+ <textarea id="ta" class="pastebox" placeholder="Push Day&#10;Bench Press (Barbell) - 4x6-8&#10;Chest Press (Machine) - 3x10 Precor&#10;Plank - 3x45s Time"></textarea>
  <p class="sm mut">Unknown exercises are created automatically. Optional tags at the end of a line: a machine brand, <b>Time</b>, <b>Dist</b>, <b>Bw</b>, <b>Reps</b>, <b>Ss:A</b> (superset group), <b>Warmup:2</b>, <b>Drop:2</b>, <b>Note: text</b>.</p>
  <div class="row"><button class="grow" data-a="close">Cancel</button><button class="pri grow" data-a="do-import-routines">Import</button></div>`)}
 async function doExport(){
@@ -1327,7 +1329,7 @@ async function doExport(){
  modal(`<h3>Export</h3><p class="sm mut">Copy this text and keep it somewhere safe (Notes, or email to yourself).</p><textarea id="ta" readonly>${esc(txt)}</textarea><div class="row" style="margin-top:8px"><button class="grow" data-a="copy">Copy</button><button class="pri grow" data-a="close">Done</button></div>`);
 }
 function doImport(){
- modal(`<h3>Import Backup</h3><p class="sm mut">Paste a backup, or choose a file. This replaces current data.</p><input type="file" id="imf" accept=".json,application/json"><textarea id="ta" style="margin-top:8px"></textarea><div class="row" style="margin-top:8px"><button class="grow" data-a="close">Cancel</button><button class="pri grow" data-a="do-import">Import</button></div>`);
+ modal(`<h3>Import JSON Backup</h3><p class="sm mut" style="margin-top:0">For a JSON backup made with Export. This replaces all current data.</p><p class="sm mut">Adding workouts from a list instead? Use Start Workout, then Templates, then Import.</p><div class="sm" style="font-weight:700;margin:12px 0 4px">Choose A JSON File</div><input type="file" id="imf" accept=".json,application/json"><div class="sm" style="font-weight:700;margin:12px 0 4px">Or Paste Your JSON Backup Below</div><textarea id="ta" class="pastebox" placeholder="Paste Your JSON Backup Here"></textarea><div class="row" style="margin-top:8px"><button class="grow" data-a="close">Cancel</button><button class="pri grow" data-a="do-import">Import</button></div>`);
  $('#imf').onchange=async e=>{const f=e.target.files[0];if(f)$('#ta').value=await f.text()};
 }
 
