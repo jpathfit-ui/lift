@@ -257,6 +257,31 @@ svg text{fill:var(--mut);font-size:15px}
 .pdn{font-size:11px;font-weight:800;opacity:.85}
 .pwn{font-size:10.5px;font-weight:700;line-height:1.15;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;max-width:100%}
 .pempty{border:1.5px dashed var(--line);border-radius:18px;padding:22px 16px;text-align:center;margin:14px 0}
+/* template cards, filters and tags */
+.tcard{display:flex;flex-direction:column;gap:2px;padding:13px 14px 12px;min-height:158px}
+.tcard .tn{font-weight:800;line-height:1.15;margin:1px 0 0}
+.tblk{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--mut);min-height:14px;margin-bottom:4px}
+.tblk i{width:9px;height:9px;border-radius:50%;flex:none}
+.tsub{font-size:12px;font-weight:700;color:var(--ac)}
+.tbar{display:flex;gap:2px;height:8px;border-radius:4px;overflow:hidden;margin-top:9px}
+.tbar span{min-width:3px}
+.tleg{display:flex;flex-direction:column;gap:2px;margin-top:8px;font-size:11px;font-weight:600}
+.tleg div{display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tleg i{width:8px;height:8px;border-radius:50%;flex:none}
+.bs0{background:#4526c8}.bs1{background:#7b5cf0}.bs2{background:#a58bff}.bs3{background:#d9ceff}
+[data-theme=dark] .bs0{background:#b7a6ff}[data-theme=dark] .bs1{background:#8f73ff}[data-theme=dark] .bs2{background:#6a4fd6}[data-theme=dark] .bs3{background:#3c3170}
+.tstat{margin-top:auto;padding-top:8px;font-size:12px;font-weight:600;color:var(--mut)}
+.tfil{display:grid;gap:8px;margin-top:8px}
+.tfil select{padding:11px 8px;font-weight:600;text-overflow:ellipsis}
+.tfil select.on{background:var(--acbg);color:var(--ac);font-weight:700}
+.tchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tchip{font-size:12px;font-weight:700;padding:5px 10px;border-radius:12px;display:inline-flex;align-items:center;gap:4px}
+.tchip.soft{background:var(--acbg);color:var(--ac)}
+.tchip.gray{background:var(--card2);color:var(--tx)}
+.tchip .tx{background:none;padding:0 2px;width:24px;height:24px;font-size:18px;line-height:1;color:var(--mut);border-radius:12px}
+.tpick{display:inline-flex;align-items:center;gap:7px;padding:8px 13px;border-radius:18px;font-size:13px;font-weight:700;background:var(--card2);border:1.5px solid transparent}
+.tpick i{width:10px;height:10px;border-radius:50%}
+.tpick.on{background:var(--acbg);border-color:var(--ac);color:var(--ac)}
 </style>
 </head>
 <body>
@@ -689,14 +714,14 @@ function vStart(){
  <div class="h3">Quick Start</div>
  ${w?`<button class="pri big" data-a="open-wk">Resume Workout</button>`:`<button class="pri big" data-a="start-empty">Start an Empty Workout</button>`}
  <div class="row sp" style="margin-top:28px"><h2>Templates</h2><div class="row"><button class="lb" data-a="import-routines">Import</button><button class="lb" data-a="new-routine">+ Template</button></div></div>
- <div class="h3" style="margin-top:22px">My Templates (${S.routines.length})</div>
- ${S.routines.length?`<div class="grid">${S.routines.map(r=>`<div class="tcard" data-a="tpl" data-id="${r.id}"><div class="tn">${esc(r.name)}</div><div class="tl">${tplSummary(r)}</div></div>`).join('')}</div>`:'<p class="mut">No templates yet. Create one with + Template, or import a workout.</p>'}`;
+ ${tplFilterHTML()}`;
 }
 function tplPreview(id){
  const r=S.routines.find(r=>r.id===id);if(!r)return;
- modal(`<h3>${esc(r.name)}</h3>
+ modal(`<h3>${esc(r.name)}</h3>${tplMetaHTML(r)}
  ${r.items.map(i=>{const x=ex(i.ex);return `<div class="row sp" style="padding:8px 0;border-bottom:1px solid var(--line)"><span style="font-weight:600">${esc(x.name)}${i.ss?' <span class="pill">Superset</span>':''}</span><span class="mut sm">${(i.warm?i.warm+' warm-up + ':'')+i.sets+' sets'+(i.drops?' + '+i.drops+' drop':'')}${i.reps?' · '+esc(i.reps):''}</span></div>`}).join('')}
  <button class="pri big" style="margin-top:14px" data-a="tpl-start" data-id="${r.id}">Start Workout</button>
+  <button class="lb big full" style="margin-top:10px" data-ta="tags" data-id="${r.id}">Edit Tags</button>
  <div class="row" style="margin-top:10px"><button class="lb grow" data-a="edit-routine" data-id="${r.id}">Edit</button><button class="lr grow" data-a="tpl-del" data-id="${r.id}">Delete</button></div>`);
 }
 
@@ -1128,6 +1153,7 @@ function applyPull(d){
  (d.templates||[]).forEach(r=>{const nm=String(r[0]||'').trim();if(nm)(groups[nm]=groups[nm]||[]).push(r)});
  const names=Object.keys(groups);
  if(names.length){
+  const prevR=S.routines;
   S.routines=names.map(nm=>({id:uid(),name:titleCase(nm),items:groups[nm].sort((a,b)=>num(a[1])-num(b[1])).map(r=>{
    const [,,exn,kind,body,mach,sets,reps,ss,warm,drops]=r,stats={newEx:0};
    const e=findOrMakeEx(String(exn),kind,stats,!!mach);st.ex+=stats.newEx;
@@ -1135,6 +1161,7 @@ function applyPull(d){
    if(mach&&!e.fixed)e.machine=true;
    return {ex:e.id,sets:Math.max(1,num(sets)||3),reps:reps===''||reps==null?'':String(reps),brand:mach?String(mach):'',ss:ss?String(ss):'',warm:num(warm),drops:num(drops)};
   })}));
+  S.routines.forEach(r=>{const o=prevR.find(p=>p.name.toLowerCase()===r.name.toLowerCase());if(o){if(o.block)r.block=o.block;if(o.tags)r.tags=o.tags;if(o.hide)r.hide=o.hide}});
   st.tpl=S.routines.length;
  }
  const sg={};
@@ -1284,7 +1311,7 @@ function findOrMakeEx(name,type,stats,wantMachine){
   if(!e)e=c[0];
  }
  if(e)return e;
- e={id:uid(),name,type:TYPES[type]?type:guessType(name),muscle:'',machine:tg==='machine'||!!wantMachine,brand:'',fixed:false};S.exercises.push(e);stats.newEx++;return e}
+ e={id:uid(),name,type:TYPES[type]?type:guessType(name),muscle:guessMuscle(name),machine:tg==='machine'||!!wantMachine,brand:'',fixed:false};S.exercises.push(e);stats.newEx++;return e}
 function parseExLine(line){
  line=line.replace(/^\s*(?:[-*•]|\d+[.)])\s+/,'').trim();
  const U='(?:(?:reps?|sec|s|min|m(?!-?\\d))\\b)?';
@@ -1302,7 +1329,7 @@ function parseExLine(line){
  return {name:m[1].trim().replace(/[:|]+$/,''),sets:Math.min(Math.max(sets,1),20),reps,type:t&&t.toLowerCase(),brand,note,ss,drops:Math.min(drops,6),warm:Math.min(warm,6)}}
 function importText(txt){
  const stats={routines:0,newEx:0};txt=txt.trim();
- const add=(name,items)=>{if(items.length){S.routines.push({id:uid(),name:titleCase(name||'Imported'),items});stats.routines++}};
+ const add=(name,items)=>{if(items.length){S.routines.push({id:uid(),name:titleCase(unShout(name||'Imported')),items});stats.routines++}};
  if(txt[0]==='['||txt[0]==='{'){
   const j=JSON.parse(txt);(Array.isArray(j)?j:[j]).forEach(r=>{
    add(r.name,(r.exercises||[]).map(x=>{const e=findOrMakeEx(x.name,x.type,stats,!!x.brand);applyMeta(e,x.brand,x.note);return {ex:e.id,sets:Math.max(1,+x.sets||3),reps:x.reps?String(x.reps):'',brand:x.brand||'',ss:x.ss||'',drops:+x.drops||0,warm:+x.warm||0}}))});
@@ -1631,9 +1658,12 @@ function pMenuModal(){
 }
 function pDayModal(d){
  const p=curProg(),b=curBlk(p),cur=b.days[d]?rtOf(b.days[d]):null;
+ const row=r=>`<div class="xrow${cur&&cur.id===r.id?' sel':''}" data-pa="setday" data-d="${d}" data-id="${r.id}"><div style="min-width:0"><div class="n">${esc(r.name)}</div><div class="m">${tplSummary(r)}</div></div></div>`;
+ const mine=S.routines.filter(r=>r.block===b.type),rest=S.routines.filter(r=>r.block!==b.type);
+ const list=!S.routines.length?'<p class="mut">No templates yet. Create one on the Start Workout tab, then assign it here.</p>':mine.length?`<div class="h3" style="margin:12px 0 4px">${esc(b.type)} Templates</div>${mine.map(row).join('')}${rest.length?`<div class="h3" style="margin:16px 0 4px">Other Templates</div>${rest.map(row).join('')}`:''}`:S.routines.map(row).join('');
  modal(`<h3>${PFULL[d]}</h3>
  <div class="xrow${!b.days[d]?' sel':''}" data-pa="setday" data-d="${d}" data-id=""><div><div class="n">Rest</div></div></div>
- ${S.routines.length?S.routines.map(r=>`<div class="xrow${cur&&cur.id===r.id?' sel':''}" data-pa="setday" data-d="${d}" data-id="${r.id}"><div style="min-width:0"><div class="n">${esc(r.name)}</div><div class="m">${tplSummary(r)}</div></div></div>`).join(''):'<p class="mut">No templates yet. Create one on the Start Workout tab, then assign it here.</p>'}
+ ${list}
  <button class="big full" style="margin-top:14px" data-a="close">Cancel</button>`);
 }
 document.addEventListener('click',e=>{
@@ -1713,6 +1743,124 @@ function pDragEnd(e){
 }
 document.addEventListener('pointerup',pDragEnd);document.addEventListener('pointercancel',pDragEnd);
 
+// ================= template tags, muscle bars and filters =================
+// A template can carry a block type (r.block), custom tags (r.tags) and muscles hidden from its card (r.hide).
+// Muscles themselves are never tagged by hand: they are worked out from the exercises in the template.
+let tplF={q:'',muscle:'',block:'',tag:''},tagEd=null;
+function tplMuscles(r){
+ const c={};let tot=0;
+ r.items.forEach(i=>{const n=i.sets||0;tot+=n;const m=ex(i.ex).muscle;if(m)c[m]=(c[m]||0)+n});
+ tot=tot||1;
+ return Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([m,n])=>({m,n,p:Math.max(1,Math.round(n/tot*100))}));
+}
+const tplVis=r=>tplMuscles(r).filter(x=>!(r.hide||[]).includes(x.m));
+const unShout=t=>{t=String(t);return /[A-Z]/.test(t)&&t===t.toUpperCase()?t.toLowerCase():t};
+function tplParts(name){name=unShout(name).replace(/(^|[\s/&(])([a-z])/g,(m,a,b)=>a+b.toUpperCase());const m=String(name).match(/^(.+?)\s+[-–—]\s+(.+)$/);return m?{main:m[1],sub:m[2]}:{main:String(name),sub:''}}
+function tplLast(r){
+ let t=0;S.workouts.forEach(w=>{if(w.tpl===r.name&&w.start>t)t=w.start});
+ if(!t)return 'Never';
+ const d=Math.floor((Date.now()-t)/864e5);
+ return d<=0?'Today':d===1?'Yesterday':d<7?d+'d Ago':d<35?Math.floor(d/7)+'w Ago':Math.floor(d/30)+'mo Ago';
+}
+function tplCard(r){
+ const p=tplParts(r.name),ms=tplVis(r),sets=r.items.reduce((n,i)=>n+(i.sets||0),0),bt=r.block&&PBT[r.block];
+ const top=ms.slice(0,3),rest=Math.max(0,100-top.reduce((n,x)=>n+x.p,0));
+ const bar=top.length?`<div class="tbar" role="img" aria-label="Muscle split">${top.map((x,i)=>`<span class="bs${i}" style="width:${x.p}%"></span>`).join('')}${rest?`<span class="bs3" style="width:${rest}%"></span>`:''}</div><div class="tleg">${top.slice(0,2).map((x,i)=>`<div><i class="bs${i}"></i>${esc(x.m)} ${x.p}%</div>`).join('')}</div>`:`<div class="tl">${tplSummary(r)}</div>`;
+ return `<div class="tcard" data-a="tpl" data-id="${r.id}"><div class="tblk">${bt?`<i style="background:${bt.c}"></i>${esc(r.block)}`:''}</div>${p.sub?`<div class="tsub">${esc(p.sub)}</div>`:''}<div class="tn">${esc(p.main)}</div>${bar}<div class="tstat">${r.items.length} Ex · ${sets} Sets · ${tplLast(r)}</div></div>`;
+}
+function tplMatch(r){
+ const f=tplF,ms=tplMuscles(r).map(x=>x.m);
+ if(f.muscle&&!ms.some(m=>muscleMatch(f.muscle,m)))return false;
+ if(f.block&&r.block!==f.block)return false;
+ if(f.tag&&!(r.tags||[]).includes(f.tag))return false;
+ const q=f.q.trim().toLowerCase();
+ if(q){
+  const grp=ms.map(m=>(BODY.find(g=>g[1].includes(m))||[''])[0]);
+  const hay=[r.name,r.block||'',...(r.tags||[]),...ms,...grp,...r.items.map(i=>ex(i.ex).name)].join(' ').toLowerCase();
+  if(!q.split(/\s+/).every(w=>hay.includes(w)))return false;
+ }
+ return true;
+}
+const tplTags=()=>[...new Set(S.routines.flatMap(r=>r.tags||[]))].sort();
+function tplResHTML(){
+ const all=S.routines,list=all.filter(tplMatch),on=tplF.q||tplF.muscle||tplF.block||tplF.tag;
+ if(!all.length)return '<p class="mut">No templates yet. Create one with + Template, or import a workout.</p>';
+ return `<div class="row sp" style="margin-top:16px"><div class="h3" style="margin:0">${on?`Showing ${list.length} Of ${all.length}`:`My Templates (${all.length})`}</div>${on?'<button class="lb" data-ta="clear">Clear</button>':''}</div>${list.length?`<div class="grid" style="margin-top:10px">${list.map(tplCard).join('')}</div>`:'<p class="mut" style="margin-top:10px">No templates match. Try clearing a filter.</p>'}`;
+}
+function tplFilterHTML(){
+ const tg=tplTags();
+ return `<div class="search" style="margin-top:12px">${IC.search}<input data-tf="q" placeholder="Search Templates Or Muscles" value="${esc(tplF.q)}" autocapitalize="off" aria-label="Search Templates"></div>
+ <div class="tfil" style="grid-template-columns:repeat(${tg.length?3:2},minmax(0,1fr))">
+ <select data-tf="muscle" class="${tplF.muscle?'on':''}" aria-label="Muscle">${bodyOptions(tplF.muscle,'Muscle')}</select>
+ <select data-tf="block" class="${tplF.block?'on':''}" aria-label="Block Type"><option value="">Block</option>${Object.keys(PBT).map(k=>`<option ${tplF.block===k?'selected':''}>${k}</option>`).join('')}</select>
+ ${tg.length?`<select data-tf="tag" class="${tplF.tag?'on':''}" aria-label="Tag"><option value="">Tag</option>${tg.map(k=>`<option ${tplF.tag===k?'selected':''}>${esc(k)}</option>`).join('')}</select>`:''}</div>
+ <div id="tplres">${tplResHTML()}</div>`;
+}
+function tplRefresh(){
+ const el=$('#tplres');if(el)el.innerHTML=tplResHTML();
+ document.querySelectorAll('.tfil select').forEach(s=>s.classList.toggle('on',!!s.value));
+}
+document.addEventListener('input',e=>{const t=e.target.closest('[data-tf]');if(!t)return;tplF[t.dataset.tf]=t.value;tplRefresh()});
+document.addEventListener('change',e=>{const t=e.target.closest('[data-tf]');if(!t)return;tplF[t.dataset.tf]=t.value;tplRefresh()});
+// ---- tag editor
+function tplMetaHTML(r){
+ const ms=tplVis(r).slice(0,5),bt=r.block&&PBT[r.block];
+ const chips=[...(bt?[`<span class="tchip" style="background:${bt.c};color:${bt.t}">${esc(r.block)}</span>`]:[]),...ms.map(x=>`<span class="tchip soft">${esc(x.m)}</span>`),...(r.tags||[]).map(t=>`<span class="tchip gray">${esc(t)}</span>`)];
+ return chips.length?`<div class="tchips">${chips.join('')}</div>`:'';
+}
+function tagModal(){
+ const r=S.routines.find(x=>x.id===tagEd.id);if(!r)return;
+ const ms=tplMuscles(r),p=tplParts(r.name);
+ modal(`<div class="pdl">Edit Tags</div><h3 style="margin-top:0">${esc(p.main)}${p.sub?` <span class="mut" style="font-weight:600;font-size:15px">· ${esc(p.sub)}</span>`:''}</h3>
+ <div class="h3" style="margin-top:14px">Block Type</div>
+ <div class="tchips">${Object.keys(PBT).map(k=>{const on=tagEd.block===k;return `<button class="tpick ${on?'on':''}" data-ta="blk" data-v="${k}"><i style="background:${PBT[k].c}"></i>${k}</button>`}).join('')}</div>
+ <div class="sm mut" style="margin-top:6px">Colors the card, and sorts matching templates first in the Program tab.</div>
+ <div class="row sp" style="margin-top:16px"><div class="h3" style="margin:0">Muscles</div><span class="pdl" style="font-size:12px">Auto From ${r.items.length} Exercises</span></div>
+ <div class="tchips" style="margin-top:8px">${ms.length?ms.map(x=>`<button class="tpick ${tagEd.hide.includes(x.m)?'':'on'}" data-ta="mus" data-v="${esc(x.m)}">${esc(x.m)}</button>`).join(''):'<span class="mut sm">Add muscle groups to your exercises to see them here.</span>'}</div>
+ ${ms.length?'<div class="sm mut" style="margin-top:6px">Tap a muscle to hide it from this card.</div>':''}
+ <div class="h3" style="margin-top:16px">Custom Tags</div>
+ <div class="tchips">${tagEd.tags.map((t,i)=>`<span class="tchip gray">${esc(t)}<button class="tx" data-ta="deltag" data-i="${i}" aria-label="Remove Tag">×</button></span>`).join('')}</div>
+ <div class="row" style="margin-top:8px"><input id="tg-in" class="pastebox" style="min-height:0;font:16px inherit;border-radius:12px" placeholder="Add A Tag" maxlength="24" value="${esc(tagEd.draft||'')}"><button class="lb" data-ta="addtag">Add</button></div>
+ <div class="row" style="margin-top:16px"><button class="grow" data-a="close">Cancel</button><button class="pri grow" data-ta="savetags">Save Tags</button></div>`);
+}
+document.addEventListener('click',e=>{
+ const el=e.target.closest('[data-ta]');if(!el)return;
+ const a=el.dataset.ta,d=el.dataset;
+ if(a==='clear'){tplF={q:'',muscle:'',block:'',tag:''};renderAll();return}
+ if(a==='tags'){const r=S.routines.find(x=>x.id===d.id);if(!r)return;tagEd={id:r.id,block:r.block||'',hide:[...(r.hide||[])],tags:[...(r.tags||[])],draft:''};tagModal();return}
+ if(!tagEd)return;
+ const inp=$('#tg-in');if(inp)tagEd.draft=inp.value;
+ if(a==='blk'){tagEd.block=tagEd.block===d.v?'':d.v;tagModal()}
+ else if(a==='mus'){tagEd.hide=tagEd.hide.includes(d.v)?tagEd.hide.filter(m=>m!==d.v):[...tagEd.hide,d.v];tagModal()}
+ else if(a==='deltag'){tagEd.tags.splice(+d.i,1);tagModal()}
+ else if(a==='addtag'){
+  const t=titleCase((tagEd.draft||'').trim());
+  if(t&&tagEd.tags.length<8&&!tagEd.tags.some(x=>x.toLowerCase()===t.toLowerCase()))tagEd.tags.push(t);
+  tagEd.draft='';tagModal();
+ }
+ else if(a==='savetags'){
+  const t=(tagEd.draft||'').trim();
+  if(t&&tagEd.tags.length<8&&!tagEd.tags.some(x=>x.toLowerCase()===titleCase(t).toLowerCase()))tagEd.tags.push(titleCase(t));
+  const r=S.routines.find(x=>x.id===tagEd.id);
+  if(r){if(tagEd.block)r.block=tagEd.block;else delete r.block;if(tagEd.tags.length)r.tags=tagEd.tags;else delete r.tags;if(tagEd.hide.length)r.hide=tagEd.hide;else delete r.hide}
+  tagEd=null;save();closeModal();renderAll();toast('Tags Saved');
+ }
+});
+
+// Best guess at the main muscle for an exercise name; only used where an exercise has none set
+function guessMuscle(name){
+ const n=String(name).toLowerCase().replace(/\([^)]*\)/g,' ');
+ const R=[[/pull.?through|hip thrust|glute|kickback|bridge/,'Glutes'],[/romanian|\brdl\b|stiff.?leg|good morning|leg curl|hamstring/,'Hamstrings'],[/calf|calves/,'Calves'],
+  [/adductor/,'Adductors'],[/abductor/,'Abductors'],[/squat|leg press|leg extension|lunge|hack|step.?up/,'Quads'],
+  [/reverse (pec|fly|flye)|rear delt|face pull/,'Rear Delts'],[/lateral raise|side raise/,'Side Delts'],[/front raise|shoulder press|overhead press|military|arnold/,'Front Delts'],
+  [/shrug|trap\b|traps\b/,'Traps'],[/back extension|hyperextension/,'Lower Back'],[/lat |lats|pulldown|pull.?down|pull.?up|chin.?up|pullover/,'Lats'],[/\brow\b|\brows\b/,'Upper Back'],
+  [/wrist curl|farmer|carry|grip/,'Forearms'],[/tricep|pushdown|skull|dip\b/,'Triceps'],[/curl/,'Biceps'],
+  [/chest|bench|fly\b|flye|pec deck|push.?up|press.?up/,'Chest'],
+  [/woodchop|wood chop|pallof|cable lift|russian twist|oblique|side bend/,'Obliques'],[/crunch|plank|dead bug|knee raise|leg raise|sit.?up|\bab\b|abs\b|rollout/,'Abs']];
+ for(const [re,m] of R)if(re.test(n))return m;
+ return '';
+}
+S.exercises.forEach(e=>{if(!e.muscle){const g=guessMuscle(e.name);if(g)e.muscle=g}});
 migrate();
 renderAll();
 if(S.active)startElapsed();
