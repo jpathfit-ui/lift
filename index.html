@@ -282,6 +282,16 @@ svg text{fill:var(--mut);font-size:15px}
 .tpick{display:inline-flex;align-items:center;gap:7px;padding:8px 13px;border-radius:18px;font-size:13px;font-weight:700;background:var(--card2);border:1.5px solid transparent}
 .tpick i{width:10px;height:10px;border-radius:50%}
 .tpick.on{background:var(--acbg);border-color:var(--ac);color:var(--ac)}
+/* workout generator */
+.gdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin-top:8px}
+.gday{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:60px;padding:6px 0;border-radius:12px;background:var(--card2);color:var(--mut);border:1.5px solid transparent}
+.gday .gst{font-size:10.5px;font-weight:700}
+.gday[data-s=T]{background:var(--ac);color:#fff}
+.gday[data-s=A]{background:var(--acbg);color:var(--ac);border-color:var(--ac)}
+.gdesc{margin-top:8px;padding:12px;border-radius:14px;background:var(--acbg);font-size:14px;line-height:1.4}
+.gmeta{margin-top:6px;font-size:12px;font-weight:700;color:var(--ac)}
+.gsend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px}
+.gsend a{display:flex;align-items:center;justify-content:center;text-decoration:none;text-align:center}
 </style>
 </head>
 <body>
@@ -1334,6 +1344,7 @@ function importText(txt){
   const j=JSON.parse(txt);(Array.isArray(j)?j:[j]).forEach(r=>{
    add(r.name,(r.exercises||[]).map(x=>{const e=findOrMakeEx(x.name,x.type,stats,!!x.brand);applyMeta(e,x.brand,x.note);return {ex:e.id,sets:Math.max(1,+x.sets||3),reps:x.reps?String(x.reps):'',brand:x.brand||'',ss:x.ss||'',drops:+x.drops||0,warm:+x.warm||0}}))});
   save();return stats}
+ txt=txt.split(/\n\s*-{3,}\s*(?:\n|$)/)[0].replace(/\*\*|__/g,'').replace(/^[ \t]*(?:[-•*][ \t]+|\d+[.)][ \t]+)/gm,'');
  txt.split(/\n\s*\n/).forEach(block=>{
   let name='',items=[];
   block.split('\n').map(l=>l.trim()).filter(Boolean).forEach(l=>{
@@ -1622,8 +1633,9 @@ function pEditHTML(p,b){
  <div class="row" style="margin:8px 0 4px"><select data-pi="btype" class="grow" aria-label="Block Type">${Object.keys(PBT).map(k=>`<option ${b.type===k?'selected':''}>${k}</option>`).join('')}</select>
  <div class="pstep"><button data-pa="wk-" aria-label="Fewer Weeks">−</button><span>${b.weeks} ${b.weeks===1?'Week':'Weeks'}</span><button data-pa="wk+" aria-label="More Weeks">+</button></div></div>
  <div class="h3" style="margin:16px 0 8px">Weekly Pattern</div>
- <div class="pweek">${b.days.map((c,d)=>{const nm=dayName(c);return `<button class="pday${c?' on':''}" data-pa="day" data-d="${d}" style="${c?`background:${t.c};color:${t.t}`:''}"><span class="pdn">${PDAYS[d]}</span><span class="pwn">${nm?esc(nm):'Rest'}</span></button>`}).join('')}</div>
+ <div class="pweek">${b.days.map((c,d)=>{const nm=dayName(c);return `<button class="pday${c?' on':''}" data-pa="day" data-d="${d}" style="${c?`background:${t.c};color:${t.t}`:''}"><span class="pdn">${PDAYS[d]}</span><span class="pwn">${nm?esc(nm):(b.act&&b.act.includes(d)?'Active Rest':'Rest')}</span></button>`}).join('')}</div>
  <div class="mut sm" style="margin:10px 0 14px">${n} ${n===1?'Workout':'Workouts'} Per Week · ${n*b.weeks} In This Block</div>
+ <button class="pri big full" style="margin-bottom:10px" data-g="open">Generate Workouts</button>
  <div class="row"><button class="lb grow" data-pa="dup">Duplicate Block</button><button class="lr grow" data-pa="del">Delete Block</button></div></div>`;
 }
 function vProgram(){
@@ -1862,6 +1874,221 @@ function guessMuscle(name){
  return '';
 }
 S.exercises.forEach(e=>{if(!e.muscle){const g=guessMuscle(e.name);if(g)e.muscle=g}});
+// ================= block workout generator =================
+// Builds a coaching prompt from the person's choices and hands it to Claude, ChatGPT or Google.
+// The reply is pasted back and becomes templates placed on the block's training days.
+const GSTY={
+ Hypertrophy:[
+  {n:'Classic Bodybuilding Split',f:1,rir:'1–3',rest:'60–90 sec',d:'One or two muscle groups per workout, moderate volume, a mix of heavy compounds and isolation work. The traditional bodybuilder week.'},
+  {n:'Push / Pull / Legs',f:2,rir:'1–3',rest:'60–120 sec',d:'Pushing muscles, pulling muscles and legs on separate days, repeated twice a week for steady frequency.'},
+  {n:'Upper / Lower',f:2,rir:'1–3',rest:'60–120 sec',d:'Upper body and lower body on alternate days. Simple, balanced, and works well on four days a week.'},
+  {n:'Full Body',f:3,rir:'2–3',rest:'90–120 sec',d:'The whole body each session, three times a week. Fewer sets per muscle per day, more frequency, good recovery between hits.'},
+  {n:'High Volume (10×10 Style)',f:2,rir:'2–3',rest:'60–90 sec',d:'Lots of sets on a main lift, such as ten sets of ten at a manageable weight, then lighter accessory work. Builds work capacity. Expect to be tired.'},
+  {n:'High Intensity, Low Volume',f:1,rir:'1–2 on compounds, 0–1 on machines and isolations',rest:'2–4 min',d:'Very few hard sets taken close to failure, with long rests and plenty of warm-up sets. Short workouts, high effort. Extra rest and reps in reserve on big lifts to protect joints.'},
+  {n:'Rest-Pause Intensity',f:1,rir:'0–1 on the rest-pause set',rest:'2–3 min between exercises',d:'Heavy sets extended with short rest-pause mini-sets on a few key lifts per workout. Low frequency per muscle, very demanding.'},
+  {n:'Pump / Short Rest',f:2,rir:'0–2',rest:'30–60 sec',d:'Higher reps, short rests and lots of supersets, often finishing a muscle with a round of short-rest sets. Fast workouts with a big pump.'},
+  {n:'Mechanical Tension',f:2,rir:'1–2',rest:'2–3 min',d:'Heavy compound lifts and controlled lowering with a deep stretch on every rep. Fewer exercises, high quality.'},
+  {n:'Cycled Intensity (Heavy, Volume, Pump Weeks)',f:2,rir:'varies by week',rest:'varies by week',d:'The weeks rotate between a heavy week, a high-volume week and a short-rest pump week, so intensity and volume take turns.'},
+  {n:'Other (Describe Below)',f:2,rir:'1–3',rest:'60–90 sec',d:'Describe the style you want in your own words. It goes straight into the prompt.'}],
+ Strength:[
+  {n:'Novice Linear Progression',f:3,rir:'2–3',rest:'3–5 min',d:'Three full-body sessions a week built on a few barbell lifts, adding a little weight every session. Best for newer lifters.'},
+  {n:'5×5 Strength',f:3,rir:'1–3',rest:'3–5 min',d:'Five sets of five on the main lifts, alternating two workouts. Classic and simple.'},
+  {n:'Upper / Lower Strength',f:2,rir:'1–3',rest:'2–5 min',d:'Heavy main lifts on upper and lower days with lighter back-off work.'},
+  {n:'Heavy Singles And Doubles',f:2,rir:'2–3 on top sets',rest:'3–5 min',d:'Work up to heavy singles and doubles, then back-off sets. For people with a solid technique base.'},
+  {n:'Powerbuilding',f:2,rir:'1–3',rest:'2–4 min',d:'Heavy compound lifts first, then bodybuilding-style accessories for size.'},
+  {n:'Other (Describe Below)',f:2,rir:'1–3',rest:'2–4 min',d:'Describe the style you want in your own words.'}],
+ Peak:[
+  {n:'Peaking Taper',f:2,rir:'1–2',rest:'3–5 min',d:'Volume comes down and intensity goes up toward a test or peak week, with fewer exercises and more rest.'},
+  {n:'Other (Describe Below)',f:2,rir:'1–2',rest:'2–4 min',d:'Describe the style you want in your own words.'}],
+ Endurance:[
+  {n:'High-Rep Muscular Endurance',f:3,rir:'2–3',rest:'30–60 sec',d:'Higher reps, short rests and steady pacing to build work capacity in the muscles.'},
+  {n:'Circuit Style',f:3,rir:'2–3',rest:'30–45 sec',d:'Moving from one exercise to the next with little rest, keeping the heart rate up.'},
+  {n:'Other (Describe Below)',f:3,rir:'2–3',rest:'30–60 sec',d:'Describe the style you want in your own words.'}],
+ Deload:[
+  {n:'Reduced Volume (About Half)',f:2,rir:'3–4',rest:'Normal',d:'The usual exercises with about half the sets and a lighter effort, so you recover without losing the groove.'},
+  {n:'Light Technique Work',f:2,rir:'4+',rest:'Normal',d:'Light weights and slow, clean reps focused on technique and mobility.'},
+  {n:'Other (Describe Below)',f:2,rir:'3–4',rest:'Normal',d:'Describe the style you want in your own words.'}],
+ Custom:[
+  {n:'General Training',f:2,rir:'1–3',rest:'60–120 sec',d:'A balanced plan built from your other choices.'},
+  {n:'Other (Describe Below)',f:2,rir:'1–3',rest:'60–120 sec',d:'Describe the style you want in your own words.'}]
+};
+const GINF={
+ Hypertrophy:[{n:'Dorian Yates',d:'Heavy, low-volume, high-intensity training with long rests.'},{n:'Kevin Levrone',d:'Heavy, high-volume classic-era bodybuilding.'},{n:'Jay Cutler',d:'Classic bodybuilding split with heavy compounds and high volume.'},{n:'Greg Doucette',d:''},{n:'Chris Elkins',d:''},{n:'Chris Jones',d:''}],
+ Strength:[{n:'Mark Rippetoe',d:'Barbell basics for newer lifters: squat, press and deadlift, adding weight every session.'}]
+};
+const GTECH=['Supersets','Drop Sets','Rest-Pause','Myo-Reps','Cluster Sets','Lengthened Partials'];
+const GEQ=['Barbell','Dumbbell','Cable','Machine','Smith Machine','Bodyweight'];
+const GBR=['Life Fitness','Precor','Matrix','Hoist','Prime','Arsenal Strength','Hammer Strength MTS','Hammer Strength Plate Loaded'];
+const GFOC=['Chest','Back','Shoulders','Arms','Legs','Glutes','Core'];
+const GDEF={styles:{},freq:'',infl:{},techs:[],equip:[],brands:[],uni:'No Preference',len:'60',rest:'',exp:'Intermediate',focus:[],other:'',notes:'',lib:false};
+let genF=null,genB=null;
+const gSty=()=>{const l=GSTY[genB.type]||GSTY.Custom;return l.find(s=>s.n===genF.styles[genB.type])||l[0]};
+function genOpen(){
+ const p=curProg(),b=curBlk(p);if(!b)return;
+ genB=b;
+ genF=Object.assign({},GDEF,S.settings.gen||{});
+ const has=b.days.some(Boolean);
+ genF.days=b.days.map((c,i)=>c?'T':(b.act&&b.act.includes(i)?'A':'R'));
+ if(!has)genF.days=['T','T','R','T','T','R','R'];
+ genModal();
+}
+function genModal(){
+ const b=genB,l=GSTY[b.type]||GSTY.Custom,inf=GINF[b.type];
+ const chips=(k,list)=>list.map(v=>`<button class="tpick ${genF[k].includes(v)?'on':''}" data-g="${k}" data-v="${esc(v)}">${esc(v)}</button>`).join('');
+ const sel=(k,opts,cur)=>`<select data-g="${k}">${opts.map(o=>{const v=Array.isArray(o)?o[0]:o,t=Array.isArray(o)?o[1]:o;return `<option value="${esc(v)}" ${String(cur)===String(v)?'selected':''}>${esc(t)}</option>`}).join('')}</select>`;
+ modal(`<div class="pdl">Generate Workouts</div><h3 style="margin-top:0">${esc(b.name)} <span class="mut" style="font-weight:600;font-size:15px">· ${b.name===b.type?'':esc(b.type)+' · '}${b.weeks} ${b.weeks===1?'Week':'Weeks'}</span></h3>
+ <p class="sm mut" style="margin:0 0 4px">Pick your preferences, send the prompt to an AI, then paste its reply back to create the workouts.</p>
+ <div class="h3" style="margin-top:16px">Week Layout</div>
+ <div class="gdays">${PDAYS.map((d,i)=>`<button class="gday" data-g="day" data-i="${i}"><span class="pdn">${d}</span><span class="gst"></span></button>`).join('')}</div>
+ <div class="sm mut" id="g-sum" style="margin-top:6px"></div>
+ <div class="h3" style="margin-top:16px">Training Style</div>
+ ${sel('style',l.map(s=>s.n),gSty().n)}
+ <div class="gdesc" id="g-desc"></div>
+ ${inf?`<div class="sm mut" style="margin:12px 0 4px;font-weight:700">Influence (Optional)</div>${sel('infl',[['','None'],...inf.map(x=>x.n)],genF.infl[b.type]||'')}<div class="sm mut" id="g-inf" style="margin-top:4px"></div>`:''}
+ <div class="sm mut" style="margin:12px 0 4px;font-weight:700">Hit Each Muscle Per Week</div>
+ <div id="g-freqw"></div>
+ <div class="h3" style="margin-top:16px">Intensity Techniques</div>
+ <div class="tchips">${chips('techs',GTECH)}</div>
+ <div class="sm mut" style="margin-top:6px">Drop sets, rest-pause and myo-reps are limited to one or two exercises per workout.</div>
+ <div class="h3" style="margin-top:16px">Equipment</div>
+ <div class="tchips">${chips('equip',GEQ)}</div>
+ <div id="g-brw"><div class="sm mut" style="margin:12px 0 0;font-weight:700">Machine Brands</div><div class="tchips">${chips('brands',GBR)}</div></div>
+ <div class="sm mut" style="margin:12px 0 4px;font-weight:700">Unilateral Or Bilateral</div>
+ ${sel('uni',['No Preference','Mostly Bilateral','Mostly Unilateral','Mix Of Both'],genF.uni)}
+ <div class="h3" style="margin-top:16px">Focus Muscles</div>
+ <div class="tchips">${chips('focus',GFOC)}</div>
+ <div class="h3" style="margin-top:16px">Session And Experience</div>
+ <div class="tfil" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+  ${sel('len',[['30','30 Min'],['45','45 Min'],['60','60 Min'],['75','75 Min'],['90','90 Min']],genF.len)}
+  ${sel('rest',[['','Style Rest'],['short','Short Rest'],['moderate','Mid Rest'],['long','Long Rest']],genF.rest)}
+  ${sel('exp',['Beginner','Intermediate','Advanced'],genF.exp)}
+ </div>
+ <div class="sm mut" style="margin:12px 0 4px;font-weight:700">Anything Else</div>
+ <textarea data-g="notes" class="pastebox" style="min-height:90px" placeholder="Injuries, favourite lifts, things to avoid">${esc(genF.notes)}</textarea>
+ <div class="row sp" style="margin-top:12px"><span>Use My Exercise Library</span><div class="row"><button data-g="lib" data-v="on" class="${genF.lib?'pri':''}">On</button><button data-g="lib" data-v="off" class="${genF.lib?'':'pri'}">Off</button></div></div>
+ <div class="sm mut" style="margin-top:4px">On asks the AI to pick from your own exercises. Long prompts may need Copy instead of the buttons.</div>
+ <details style="margin-top:14px"><summary style="font-weight:700;color:var(--ac);padding:8px 0">Preview Prompt</summary><textarea id="g-prompt" class="pastebox" style="min-height:220px;font-size:13px"></textarea></details>
+ <div class="h3" style="margin-top:14px">Send Prompt To</div>
+ <div class="gsend" id="g-send"><a class="lb big" data-g="link" data-k="claude" target="_blank" rel="noopener">Claude</a><a class="lb big" data-g="link" data-k="chatgpt" target="_blank" rel="noopener">ChatGPT</a><a class="lb big" data-g="link" data-k="google" target="_blank" rel="noopener">Google</a></div>
+ <button class="big full" style="margin-top:8px" data-g="copy">Copy Prompt</button>
+ <button class="pri big full" style="margin-top:8px" data-g="paste">Paste AI Reply</button>
+ <button class="big full" style="margin-top:8px" data-a="close">Close</button>`);
+ genRefresh();
+}
+function genSave(){const {days,...rest}=genF;S.settings.gen=rest;save()}
+function genLib(){
+ const eq=genF.equip,names=S.exercises.filter(x=>x.type!=='dist').map(x=>x.name).filter(n=>{
+  if(!eq.length)return true;
+  return eq.some(e=>e==='Bodyweight'?!/\(/.test(n):n.includes('('+e+')'));
+ });
+ return [...new Set(names)].slice(0,90);
+}
+function genPrompt(){
+ const b=genB,f=genF,s=gSty(),T=[],A=[],R=[];
+ f.days.forEach((d,i)=>(d==='T'?T:d==='A'?A:R).push(PFULL[i]));
+ const freq=f.freq||s.f,restTxt={short:'30–60 sec',moderate:'60–90 sec',long:'2–3 min'}[f.rest]||s.rest;
+ const inf=f.infl[b.type];
+ const hyp=b.type==='Hypertrophy'?({Beginner:'6–10',Intermediate:'10–16',Advanced:'12–20'})[f.exp]:'';
+ const L=[];
+ L.push(`You are an evidence-based strength and conditioning coach. Design a ${b.weeks}-week ${b.type.toLowerCase()} training block for me. Treat my choices below as requirements.`,'');
+ L.push('TRAINING WEEK');
+ L.push(`- Training days (${T.length} per week): ${T.join(', ')||'none'}. Write exactly ${T.length} different workouts, one per training day, in that order. The same weekly pattern repeats for ${b.weeks} ${b.weeks===1?'week':'weeks'}.`);
+ if(A.length)L.push(`- Active rest days: ${A.join(', ')}. Light activity only, such as walking, mobility or easy cardio. No extra lifting.`);
+ if(R.length)L.push(`- Complete rest days: ${R.join(', ')}.`);
+ L.push(`- Session length: about ${f.len} minutes including rest between sets. Choose the number of exercises and sets to fit.`,'');
+ L.push('STYLE');
+ L.push(`- Training style: ${s.n.replace(' (Describe Below)','')}. ${s.d}`);
+ if(/^Other/.test(s.n)&&f.other)L.push(`- My description of the style: ${f.other}`);
+ L.push(`- Train each muscle about ${freq} time${freq==1?'':'s'} per week.`);
+ L.push(`- Effort: ${s.rir==='varies by week'?'vary by week as the style describes':'reps in reserve (RIR) '+s.rir}. Rest between sets: ${restTxt}.`);
+ if(inf)L.push(`- Take loose inspiration from the training philosophy of ${inf}. Do not copy or reproduce any specific or copyrighted program.`);
+ L.push('- If my choices are not textbook-optimal, still build the plan my way, and add one honest sentence about the trade-off after the workouts.','');
+ L.push('INTENSITY TECHNIQUES');
+ L.push(f.techs.length?`- Use only these where they fit: ${f.techs.join(', ')}. Limit drop sets, rest-pause, myo-reps and cluster sets to one or two exercises per workout, and to one if a muscle is trained three or more times a week.`:'- Do not use supersets, drop sets, rest-pause, myo-reps or cluster sets.','');
+ L.push('EXERCISES');
+ L.push(`- Equipment I have: ${f.equip.length?f.equip.join(', '):'any standard gym equipment'}.`);
+ if(f.brands.length&&(!f.equip.length||f.equip.some(e=>/Machine/.test(e))))L.push(`- Machine brands available: ${f.brands.join(', ')}.`);
+ if(f.uni!=='No Preference')L.push(`- Unilateral or bilateral: ${f.uni}.`);
+ if(f.focus.length)L.push(`- Emphasize these muscles: ${f.focus.join(', ')}. Keep the rest at a sensible level.`);
+ if(f.lib){const l=genLib();if(l.length)L.push(`- Choose exercises from this list where possible, using these exact names: ${l.join('; ')}. Add others only if needed.`)}
+ L.push(`- My experience level: ${f.exp}.`);
+ if(f.notes.trim())L.push(`- Other notes from me: ${f.notes.trim()}`);
+ L.push('');
+ L.push('COACHING RULES');
+ L.push(hyp?`- About ${hyp} hard sets per muscle group per week, spread across the week.`:`- Choose sets and reps that suit a ${b.type.toLowerCase()} block.`);
+ L.push('- Put the biggest compound lifts first in each workout.','- Keep hard sessions for the same muscle at least 48 hours apart.','- Balance pushing and pulling, and include calves, rear delts and core where they fit.','- Put the target RIR for each exercise in its Note.');
+ if(b.weeks>=6)L.push('- This block is long, so say when a deload should happen.');
+ L.push('');
+ L.push('OUTPUT FORMAT (important)');
+ L.push('Reply with ONLY the workouts, in plain text with no markdown, bullets, numbering, bold or tables. One workout per block, separated by a blank line. The first line of each block is the workout name, optionally followed by " - " and its focus. Then one exercise per line in exactly this shape:','Exercise Name (Equipment) - SETSxREPS Note: short note','Examples:','LEGS A - QUAD EMPHASIS','Squat (Smith Machine) - 4x8-10 Note: RIR 2','Bulgarian Split Squat (Dumbbell) - 3x10-12 Note: each leg, RIR 2','Farmer Carry (Dumbbell) - 3x30-45 sec Time','Equipment in brackets must be one of: Barbell, Dumbbell, Cable, Machine, Smith Machine, EZ Bar. Leave the brackets off for bodyweight exercises. If you need to explain anything, put it after all the workouts, below a line containing only ---.');
+ return L.join('\n');
+}
+function genUrl(k,p){
+ const q=encodeURIComponent(p),big=q.length>7000;
+ return k==='claude'?'https://claude.ai/new'+(big?'':'?q='+q):k==='chatgpt'?'https://chatgpt.com/'+(big?'':'?q='+q):'https://www.google.com/search?udm=50'+(big?'':'&q='+q);
+}
+function genRefresh(){
+ const f=genF,s=gSty(),t=f.days.filter(d=>d==='T').length,a=f.days.filter(d=>d==='A').length,r=7-t-a;
+ document.querySelectorAll('.gday').forEach(el=>{
+  const d=f.days[+el.dataset.i];el.dataset.s=d;el.querySelector('.gst').textContent=d==='T'?'Train':d==='A'?'Active':'Rest';
+ });
+ const sum=$('#g-sum');if(sum)sum.textContent=t?`${t} Training · ${a} Active Rest · ${r} Rest. Tap A Day To Change It.`:'Pick At Least One Training Day.';
+ const d=$('#g-desc');if(d)d.innerHTML=`${esc(s.d)}<div class="gmeta">Suggested: ${s.f}× Per Week · RIR ${esc(s.rir)} · Rest ${esc(s.rest)}</div>`;
+ const fw=$('#g-freqw');if(fw)fw.innerHTML=`<select data-g="freq">${[['',`Suggested (${s.f}×)`],['1','1×'],['2','2×'],['3','3×'],['4','4×']].map(([v,l])=>`<option value="${v}" ${String(f.freq)===v?'selected':''}>${l}</option>`).join('')}</select>`;
+ const inf=GINF[genB.type],ie=$('#g-inf');if(ie&&inf){const x=inf.find(i=>i.n===f.infl[genB.type]);ie.textContent=x?(x.d?x.d+' ':'')+'Used as loose inspiration only, not a copy of any program.':''}
+ const bw=$('#g-brw');if(bw)bw.style.display=(!f.equip.length||f.equip.some(e=>/Machine/.test(e)))?'':'none';
+ const p=genPrompt(),pe=$('#g-prompt');if(pe)pe.value=p;
+ document.querySelectorAll('#g-send [data-k]').forEach(a=>a.href=genUrl(a.dataset.k,p));
+ const sd=$('#g-send');if(sd)sd.style.opacity=t?1:.4,sd.style.pointerEvents=t?'':'none';
+}
+function genCopy(txt){
+ try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).catch(()=>{});return}}catch(_){}
+ const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(_){}ta.remove();
+}
+function genPasteModal(){
+ modal(`<div class="pdl">Paste AI Reply</div><h3 style="margin-top:0">Create The Workouts</h3>
+ <p class="sm mut">Paste the workouts the AI wrote. They become templates and replace the weekly pattern of ${esc(genB.name)}, placed on your training days in order.</p>
+ <textarea id="g-reply" class="pastebox" placeholder="Paste The Workouts Here"></textarea>
+ <div class="row" style="margin-top:14px"><button class="grow" data-g="back">Back</button><button class="pri grow" data-g="apply">Create Workouts</button></div>`);
+}
+document.addEventListener('click',e=>{
+ const el=e.target.closest('[data-g]');if(!el)return;
+ const k=el.dataset.g,v=el.dataset.v;
+ if(k==='open'){genOpen();return}
+ if(!genF)return;
+ if(k==='link'){genCopy($('#g-prompt').value);toast('Prompt Copied');el.href=genUrl(el.dataset.k,$('#g-prompt').value);return}
+ if(k==='copy'){genCopy($('#g-prompt').value);toast('Prompt Copied');return}
+ if(k==='paste'){genSave();genPasteModal();return}
+ if(k==='back'){genModal();return}
+ if(k==='apply'){
+  const txt=($('#g-reply').value||'').trim();if(!txt){toast('Paste The Reply First');return}
+  const before=new Set(S.routines.map(r=>r.id));let st;
+  try{st=importText(txt)}catch(_){toast('Could Not Read That Reply');return}
+  if(!st.routines){toast('No Exercises Found – Check The Format');return}
+  const nu=S.routines.filter(r=>!before.has(r.id)),b=genB;
+  nu.forEach(r=>{r.block=b.type;r.tags=[...new Set([...(r.tags||[]),'Generated'])]});
+  const tr=genF.days.map((d,i)=>d==='T'?i:-1).filter(i=>i>=0);
+  b.days=Array(7).fill(null);b.act=genF.days.map((d,i)=>d==='A'?i:-1).filter(i=>i>=0);
+  tr.forEach((d,i)=>{const r=nu[i%nu.length];b.days[d]={r:r.id,n:r.name}});
+  save();closeModal();pRender();
+  toast(nu.length>tr.length?`Added ${nu.length} Templates, ${tr.length} Placed`:`Added ${nu.length} Template${nu.length===1?'':'s'}`);
+  return;
+ }
+ if(k==='day'){const i=+el.dataset.i;genF.days[i]={T:'A',A:'R',R:'T'}[genF.days[i]];genRefresh();return}
+ if(k==='lib'){genF.lib=v==='on';el.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('pri',(b.dataset.v==='on')===genF.lib));genSave();genRefresh();return}
+ if(['techs','equip','brands','focus'].includes(k)){const a=genF[k],i=a.indexOf(v);if(i>=0)a.splice(i,1);else a.push(v);el.classList.toggle('on',i<0);genSave();genRefresh()}
+});
+function genField(e){
+ const el=e.target.closest('[data-g]');if(!el||!genF||el.tagName==='BUTTON'||el.tagName==='A')return;
+ const k=el.dataset.g,v=el.value;
+ if(k==='style'){genF.styles[genB.type]=v;genF.freq='';const s=gSty();if(/^Other/.test(s.n)&&!genF.other)genF.other=''}
+ else if(k==='infl')genF.infl[genB.type]=v;
+ else genF[k]=v;
+ genSave();genRefresh();
+}
+document.addEventListener('change',genField);
+document.addEventListener('input',e=>{const el=e.target.closest('[data-g]');if(el&&el.tagName==='TEXTAREA'&&el.dataset.g==='notes')genField(e)});
+
 migrate();
 renderAll();
 if(S.active)startElapsed();
